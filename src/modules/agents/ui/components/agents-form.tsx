@@ -47,6 +47,7 @@ export const AgentForm = ({
       },
       onError: (error) => {
         toast.error(error.message);
+        form.setError("instructions", { message: error.message });
 
         // TODO: Check if error code is  "FORBIDDEN", redirect to "/upgrade"
       },
@@ -68,6 +69,7 @@ export const AgentForm = ({
       },
       onError: (error) => {
         toast.error(error.message);
+        form.setError("instructions", { message: error.message });
 
         // TODO: Check if error code is  "FORBIDDEN", redirect to "/upgrade"
       },
@@ -152,7 +154,7 @@ export const AgentForm = ({
           )}
 
           <Button disabled={isPending} type="submit">
-            {isEdit ? "Update" : "Create"}
+            {isPending ? (isEdit ? "Updating..." : "Creating...") : (isEdit ? "Update" : "Create")}
           </Button>
         </div>
       </form>
