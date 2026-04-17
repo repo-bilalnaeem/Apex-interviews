@@ -1,0 +1,246 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-apex-accent: var(--apex-accent);
+  --color-apex-accent-dark: var(--apex-accent-dark);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Override gray-800 globally — improves visibility on dark backgrounds */
+  --color-gray-800: rgb(194 199 206);
+}
+
+/* ─── APEX Design Tokens ─────────────────────────────────────────── */
+:root {
+  --radius: 0.75rem;
+
+  /* Core surfaces */
+  --background:        #0A0A0A;
+  --surface:           #141414;
+  --card:              #1E1E1E;
+  --card-foreground:   #F5F5F5;
+  --popover:           #141414;
+  --popover-foreground:#F5F5F5;
+  --border:            #2A2A2A;
+  --input:             #141414;
+
+  /* Text */
+  --foreground:        #F5F5F5;
+  --muted:             #1E1E1E;
+  --muted-foreground:  #6B6B6B;
+
+  /* Brand — electric lime */
+  --apex-accent:       #CAFF02;
+  --apex-accent-dark:  #A8D900;
+
+  /* Primary maps to lime so shadcn default button = lime */
+  --primary:           #CAFF02;
+  --primary-foreground:#000000;
+
+  /* Secondary — dark surface */
+  --secondary:         #1E1E1E;
+  --secondary-foreground: #F5F5F5;
+
+  /* Accent — subtle hover tint */
+  --accent:            #1A1A1A;
+  --accent-foreground: #F5F5F5;
+
+  /* Semantic */
+  --destructive:       #FF4444;
+  --ring:              #CAFF02;
+
+  /* Status colors (referenced via Tailwind arbitrary values) */
+  --color-success:     #34D399;
+  --color-warning:     #FBBF24;
+  --color-processing:  #818CF8;
+
+  /* Charts */
+  --chart-1: #CAFF02;
+  --chart-2: #34D399;
+  --chart-3: #818CF8;
+  --chart-4: #FBBF24;
+  --chart-5: #FF4444;
+
+  /* Sidebar — APEX dark */
+  --sidebar:                    #0F0F0F;
+  --sidebar-foreground:         #F5F5F5;
+  --sidebar-primary:            #CAFF02;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent:             #1A1A1A;
+  --sidebar-accent-foreground:  #F5F5F5;
+  --sidebar-border:             #1E1E1E;
+  --sidebar-ring:               #CAFF02;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  }
+  .font-body {
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  }
+  /* Focus ring matches lime accent */
+  .focus-apex {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CAFF02]/60;
+  }
+}
+
+@layer utilities {
+  .bg-grid-white\/10 {
+    background-image: url("data:image/svg+xml,%3csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23ffffff' fill-opacity='0.1'%3e%3ccircle cx='30' cy='30' r='1'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e");
+  }
+
+  .bg-grid-white\/5 {
+    background-image: url("data:image/svg+xml,%3csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23ffffff' fill-opacity='0.05'%3e%3ccircle cx='30' cy='30' r='1'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e");
+  }
+}
+
+/* Coding Assessment Mobile Optimizations */
+@layer components {
+  /* Monaco Editor mobile improvements */
+  .monaco-editor {
+    @apply touch-pan-y;
+  }
+  
+  .monaco-editor .view-lines {
+    @apply touch-pan-y;
+  }
+  
+  /* Improve touch targets on mobile */
+  @media (max-width: 768px) {
+    .monaco-editor .margin {
+      min-width: 44px;
+    }
+    
+    .monaco-editor .view-line {
+      min-height: 20px;
+    }
+    
+    /* Better scrollbar visibility on mobile */
+    .monaco-editor .scrollbar {
+      opacity: 0.8;
+    }
+    
+    .monaco-editor .scrollbar:hover {
+      opacity: 1;
+    }
+  }
+  
+  /* Responsive text sizing for coding assessment */
+  .coding-assessment-text {
+    @apply text-sm;
+  }
+  
+  @media (min-width: 640px) {
+    .coding-assessment-text {
+      @apply text-base;
+    }
+  }
+  
+  /* Better button spacing on mobile */
+  .coding-assessment-buttons {
+    @apply flex flex-col gap-2;
+  }
+  
+  @media (min-width: 640px) {
+    .coding-assessment-buttons {
+      @apply flex-row;
+    }
+  }
+  
+  /* Improved tab navigation on mobile */
+  .coding-assessment-tabs [role="tablist"] {
+    @apply overflow-x-auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .coding-assessment-tabs [role="tablist"]::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .coding-assessment-tabs [role="tab"] {
+    @apply flex-shrink-0 min-w-0;
+  }
+  
+  /* Simple coding assessment improvements */
+  .monaco-editor {
+    @apply touch-pan-y;
+  }
+  
+  /* Better resizable handles */
+  [data-panel-resize-handle-enabled] {
+    @apply bg-border hover:bg-accent-foreground/20 transition-colors;
+  }
+  
+  [data-panel-resize-handle-enabled="vertical"] {
+    @apply w-1;
+  }
+  
+  [data-panel-resize-handle-enabled="horizontal"] {
+    @apply h-1;
+  }
+}
