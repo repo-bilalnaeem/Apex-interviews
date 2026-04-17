@@ -212,11 +212,22 @@ Plans:
 
 **Goal:** Two enforcement layers — backend LLM validation blocks off-topic/injection agent instructions on create/edit, and a hybrid system prompt enforces topic scope and graceful injection handling during live calls.
 **Depends on:** Phase 7
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 08-01-PLAN.md — Guardrails validation service (src/lib/guardrails.ts) + wire into agent create/update tRPC procedures
 - [ ] 08-02-PLAN.md — Refined in-call hybrid system prompt in webhook handler + inline error display in agents form
+
+## Phase 9: RAG Pipeline
+
+**Goal:** Replace the hardcoded 3-doc knowledge base and naive keyword matching with a proper vector store and semantic search pipeline. Embed documents at startup, retrieve relevant chunks via cosine similarity, and inject them into the chatbot system prompt context for transcript-grounded Ask AI answers.
+**Depends on:** Phase 8
+**Plans:** 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — OpenAI embedding wrapper (embeddings.ts) + in-memory vector store with cosine similarity (vectorStore.ts)
+- [ ] 09-02-PLAN.md — Expand KB content + rewrite retrieve.ts with semantic search + inngest transcript embedding step
+- [ ] 09-03-PLAN.md — Wire meetingId through /api/chatbot route and chat-ui.tsx to complete the RAG pipeline
 
 ---
 *Created: 2026-03-26*
