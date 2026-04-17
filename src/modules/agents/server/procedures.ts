@@ -11,11 +11,20 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 import { TRPCError } from "@trpc/server";
+import { validateAgentInstructions } from "@/lib/guardrails";
 
 export const agentsRouter = createTRPCRouter({
   update: protectedProcedure
     .input(agentsUpdateSchema)
     .mutation(async ({ ctx, input }) => {
+      const validation = await validateAgentInstructions(input.instructions);
+      if (!validation.valid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Instructions must be interview/job-related",
+        });
+      }
+
       const [updatedAgent] = await db
         .update(agents)
         .set(input)
@@ -129,6 +138,14 @@ export const agentsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(agentsInsertSchema)
     .mutation(async ({ input, ctx }) => {
+      const validation = await validateAgentInstructions(input.instructions);
+      if (!validation.valid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Instructions must be interview/job-related",
+        });
+      }
+
       const [createdAgent] = await db
         .insert(agents)
         .values({
