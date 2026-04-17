@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/bilal/.claude/plugins/marketplaces/ui-ux-pro-max-skill/.claude/skills/ui-ux-pro-max/**)",
+      "Bash(python3 scripts/search.py \"AI interview career tool SaaS dark editorial minimal\" --design-system -p \"APEX Web\" -f markdown)",
+      "Bash(python3 src/ui-ux-pro-max/scripts/search.py \"AI interview career tool SaaS dark editorial minimal\" --design-system -p \"APEX Web\" -f markdown)",
+      "Bash(python3 src/ui-ux-pro-max/scripts/search.py \"SaaS dashboard sidebar navigation dark\" --domain ux -n 5)",
+      "Bash(rsync -av --exclude='node_modules' --exclude='.next' --exclude='.git' --exclude='coverage' --exclude='build' --exclude='out' /c/Users/bilal/Documents/GitHub/folio-interns/ /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp -r /c/Users/bilal/Documents/GitHub/folio-interns/src /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/package.json /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/package-lock.json /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/next.config.ts /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/tsconfig.json /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp -r /c/Users/bilal/Documents/GitHub/folio-interns/public /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp -r /c/Users/bilal/Documents/GitHub/folio-interns/migrations /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp -r /c/Users/bilal/Documents/GitHub/folio-interns/scripts /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/.gitignore /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/README.md /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
+      "Bash(gh repo:*)",
+      "Bash(npm list:*)",
+      "Bash(npx drizzle-kit:*)"
+    ]
+  }
+}
