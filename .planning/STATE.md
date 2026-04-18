@@ -15,7 +15,7 @@ progress:
 
 **Project:** APEX — UI Redesign
 **Last updated:** 2026-03-27
-**Last session:** 2026-04-18T05:53:01.327Z
+**Last session:** 2026-04-18T06:21:04.385Z
 
 ## Project Reference
 
@@ -67,6 +67,8 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 - [Phase 09-rag-pipeline]: agentSpeakers re-queried inside embed-transcript step for inngest replay safety
 - [Phase 09-rag-pipeline]: route.ts await fix applied at Plan 02 (not deferred to Plan 03) after async signature change
 - [Phase 09-rag-pipeline]: meetingId propagated from chat-ui through /api/chatbot route to getRelevantDocs, completing RAG pipeline end-to-end
+- [Phase 10-langchain-agentic-pipeline]: Manual tool loop used instead of AgentExecutor for clean token-level streaming
+- [Phase 10-langchain-agentic-pipeline]: SSE toolCall event emitted before answer tokens when agent calls fetch_transcript tool
 
 ## Accumulated Context
 
@@ -96,4 +98,5 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 | Phase 09-rag-pipeline P01 | 86 | 2 tasks | 2 files |
 | Phase 09-rag-pipeline P02 | 259 | 2 tasks | 4 files |
 | Phase 09-rag-pipeline P03 | 193 | 2 tasks | 2 files |
+| Phase 10-langchain-agentic-pipeline P01 | 108 | 2 tasks | 2 files |
 
