@@ -15,7 +15,7 @@ progress:
 
 **Project:** APEX — UI Redesign
 **Last updated:** 2026-03-27
-**Last session:** 2026-04-18T06:21:04.385Z
+**Last session:** 2026-04-18T06:23:44.918Z
 
 ## Project Reference
 
@@ -69,6 +69,8 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 - [Phase 09-rag-pipeline]: meetingId propagated from chat-ui through /api/chatbot route to getRelevantDocs, completing RAG pipeline end-to-end
 - [Phase 10-langchain-agentic-pipeline]: Manual tool loop used instead of AgentExecutor for clean token-level streaming
 - [Phase 10-langchain-agentic-pipeline]: SSE toolCall event emitted before answer tokens when agent calls fetch_transcript tool
+- [Phase 10-langchain-agentic-pipeline]: Three-state bubble (dots, label+dots, answer) in same DOM element — no bubble swap for seamless UX
+- [Phase 10-langchain-agentic-pipeline]: TOOL_LABELS default fallback 'Looking up meeting...' for unknown tool names
 
 ## Accumulated Context
 
@@ -99,4 +101,5 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 | Phase 09-rag-pipeline P02 | 259 | 2 tasks | 4 files |
 | Phase 09-rag-pipeline P03 | 193 | 2 tasks | 2 files |
 | Phase 10-langchain-agentic-pipeline P01 | 108 | 2 tasks | 2 files |
+| Phase 10-langchain-agentic-pipeline P02 | 63 | 2 tasks | 1 files |
 

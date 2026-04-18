@@ -233,7 +233,7 @@ Plans:
 
 **Goal:** Upgrade the Ask AI chatbot with agentic tool use — the agent calls a transcript retrieval tool mid-answer and shows a tool-specific thinking indicator inside the chat bubble before streaming the response.
 **Depends on:** Phase 9
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 10-01-PLAN.md — Backend agent: transcript tool + streamAgentResponse + route.ts toolCall SSE events
