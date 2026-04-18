@@ -15,7 +15,7 @@ progress:
 
 **Project:** APEX — UI Redesign
 **Last updated:** 2026-03-27
-**Last session:** 2026-04-18T05:48:04.358Z
+**Last session:** 2026-04-18T05:53:01.327Z
 
 ## Project Reference
 
@@ -66,6 +66,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 - [Phase 09-rag-pipeline]: knowledgeBase changed from Doc[] to string[] matching vectorStore initKB interface
 - [Phase 09-rag-pipeline]: agentSpeakers re-queried inside embed-transcript step for inngest replay safety
 - [Phase 09-rag-pipeline]: route.ts await fix applied at Plan 02 (not deferred to Plan 03) after async signature change
+- [Phase 09-rag-pipeline]: meetingId propagated from chat-ui through /api/chatbot route to getRelevantDocs, completing RAG pipeline end-to-end
 
 ## Accumulated Context
 
@@ -94,4 +95,5 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 | Phase 07-tools-screens P01 | 99 | 2 tasks | 2 files |
 | Phase 09-rag-pipeline P01 | 86 | 2 tasks | 2 files |
 | Phase 09-rag-pipeline P02 | 259 | 2 tasks | 4 files |
+| Phase 09-rag-pipeline P03 | 193 | 2 tasks | 2 files |
 
