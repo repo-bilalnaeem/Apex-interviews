@@ -9,7 +9,8 @@ An AI-powered interview coaching platform. Users create AI agents with custom jo
 - **Live AI Interviews** — join a video/audio call with a custom AI agent that plays the interviewer, powered by Stream Video
 - **Transcript Analysis** — after the call, the transcript is auto-processed: summarized by an Inngest agent and embedded into a vector store for semantic search
 - **Ask AI Chatbot** — a multi-agent chatbot answers questions about the transcript, coaches on interview technique, and advises on CV/resume — with visible agent routing in the UI
-- **Resume Assistant** — upload a PDF CV, get it tailored to a job description, generate a cover letter or offer letter, export as PDF/DOCX
+- **Speech Analysis** — after each interview, OpenAI Whisper analyses the recording to count filler words ("um", "uh", "like"…) and measure speaking pace (WPM), displayed in the meeting summary
+- **Resume Assistant** — upload a PDF CV (text-based or scanned/image PDF), get it tailored to a job description, generate a cover letter or offer letter, export as PDF/DOCX
 - **Secure Agent Creation** — all agent instructions are validated by an LLM guardrail before saving, blocking off-topic content and prompt injection attempts
 
 ---
@@ -24,7 +25,7 @@ An AI-powered interview coaching platform. Users create AI agents with custom jo
 | Video/Audio calls | Stream Video SDK |
 | Chat | Stream Chat SDK |
 | Background jobs | Inngest |
-| AI models | OpenAI GPT-4o-mini, text-embedding-ada-002 |
+| AI models | OpenAI GPT-4o, GPT-4o-mini, Whisper, text-embedding-ada-002 |
 | Agentic framework | LangChain (`@langchain/openai`, `@langchain/core`) + Inngest Agent Kit |
 | File uploads | UploadThing |
 | Email | Nodemailer |
@@ -173,6 +174,8 @@ When a meeting ends, Stream sends a webhook that fires the `meetings/processing`
 2. `add-speakers` — joins speaker IDs against the DB to resolve real names (user vs AI agent)
 3. `summarizer.run()` — **Inngest Agent Kit**: a `createAgent()` wrapping GPT-4o-mini generates a structured markdown summary (Overview + timestamped Notes sections), saved back to the `meetings` table
 4. `embed-transcript` — chunks by speaker turn, batch-embeds, stores in the vector store for RAG
+5. `whisper-enrichment` — downloads the recording, calls **OpenAI Whisper** (`whisper-1`) with word-level timestamps, computes filler word counts and WPM
+6. `save-speech-analysis` — persists the JSON result to the `speech_analysis` DB column; skipped if enrichment failed
 
 ---
 
@@ -233,20 +236,46 @@ src/lib/chatbot/agents/
 
 ---
 
-### 7. Resume Assistant — PDF Parsing (Multimodal Input)
+### 7. Multimodal AI — Audio Analysis & Vision PDF Parsing
 
-**Files:** `src/modules/resume-assistant/`, `src/app/api/parseResume/`
+#### 7a. Whisper Speech Analysis
 
-Users upload a PDF CV. The `/api/parseResume` endpoint:
-1. Accepts a base64-encoded PDF
-2. Uses `pdf-parse` to extract raw text from the binary buffer
-3. Returns the text to the client
+**Files:** `src/lib/speech-analysis.ts`, `src/inngest/functions.ts`, `src/modules/meetings/ui/components/completed-state.tsx`
 
-Extracted CV text becomes context for all resume AI requests. Outputs can be exported as **PDF** (`jsPDF`) or **DOCX** (`docx` + `file-saver`).
+After each interview the Inngest pipeline downloads the recording and passes it to **OpenAI Whisper** (`whisper-1`) with `response_format: verbose_json` and `timestamp_granularities: ['word']`. Word-level timestamps enable two metrics:
+
+| Metric | How computed |
+|--------|-------------|
+| **Filler words** | Count occurrences of "um", "uh", "like", "basically", "literally" (normalised, punctuation stripped) |
+| **Speaking pace** | `words.length / durationMinutes`, labelled `too slow` (<120 wpm), `good` (120–180 wpm), or `too fast` (>180 wpm) |
+
+Results are stored as JSON in `speech_analysis` (text column on `meetings` table) and rendered as a **Speech Analysis card** in the meeting summary tab, with colour-coded WPM badge and per-word filler breakdown.
+
+A 25 MB file-size guard skips enrichment for very long recordings (Whisper API limit).
+
+#### 7b. GPT-4o Vision CV Fallback
+
+**Files:** `src/lib/pdf-vision.ts`, `src/app/api/parseResume/route.ts`
+
+The `/api/parseResume` endpoint uses a two-attempt strategy for uploaded CVs:
+
+```
+1. pdf-parse (fast, free) → extracted text
+       │
+       └─ length < 100 chars? (scanned / image PDF)
+                │
+                ▼
+   2. pdfjs-dist renders page 1 to PNG (2× scale via @napi-rs/canvas)
+                │
+                ▼
+   3. GPT-4o vision (detail: high) extracts all text from the image
+```
+
+If both attempts fail, the API returns a 422 with a copy-paste prompt. The `source` field in the response (`"pdf-parse"` or `"vision"`) indicates which path succeeded. Outputs can be exported as **PDF** (`jsPDF`) or **DOCX** (`docx` + `file-saver`).
 
 ---
 
-### 8. Video & Audio Calls
+### 8. Video Calls
 
 **Files:** `src/lib/stream-video.ts`, `src/modules/call/`
 
@@ -281,6 +310,8 @@ src/
 │   │   ├── retrieve.ts          # RAG retrieval (KB + transcript)
 │   │   └── knowledgeBase.ts     # Static coaching knowledge base
 │   ├── guardrails.ts            # LLM-based agent instruction validator
+│   ├── speech-analysis.ts       # Whisper enrichment — filler words + WPM
+│   ├── pdf-vision.ts            # GPT-4o vision PDF text extraction
 │   ├── stream-video.ts          # Stream Video server client
 │   └── stream-chat.ts           # Stream Chat server client
 ├── inngest/
