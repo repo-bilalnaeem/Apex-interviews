@@ -153,7 +153,7 @@ const CompletedState = ({ data }: Props) => {
 
         {/* Ask AI */}
         <TabsContent value="chat">
-          <ChatProvider meetingId={data.id} meetingName={data.name} />
+          <ChatProvider meetingId={data.id} meetingName={data.name} summary={data.summary ?? undefined} />
         </TabsContent>
       </Tabs>
     </div>

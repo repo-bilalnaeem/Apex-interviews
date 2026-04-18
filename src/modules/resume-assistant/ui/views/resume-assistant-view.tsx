@@ -30,8 +30,18 @@ import { Document, Packer, Paragraph, TextRun } from "docx";
 
 
 const ResumeAssistantView = () => {
+  const CHAT_STORAGE_KEY = "resume_assistant_chat";
+
   // states for chatbot features
-  const [chatMessages, setChatMessages] = useState<Array<{id: string, type: 'user' | 'bot', content: string, timestamp: Date}>>([]);
+  const [chatMessages, setChatMessages] = useState<Array<{id: string, type: 'user' | 'bot', content: string, timestamp: Date}>>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || "[]").map((m: any) => ({
+        ...m,
+        timestamp: new Date(m.timestamp),
+      }));
+    } catch { return []; }
+  });
   const [currentMessage, setCurrentMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<'chat' | 'offer-letter' | 'cv-tailoring' | 'cover-letter' | null>(null);
@@ -45,39 +55,70 @@ const ResumeAssistantView = () => {
 
 
   const handleSendMessage = async () => {
-    if (!currentMessage.trim()) return;
+    if (!currentMessage.trim() || isProcessing) return;
 
     const userMessage = {
       id: Date.now().toString(),
       type: 'user' as const,
       content: currentMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setChatMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...chatMessages, userMessage];
+    setChatMessages(updatedMessages);
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(updatedMessages));
     setCurrentMessage("");
     setIsProcessing(true);
 
+    const history = chatMessages.map((m) => ({
+      role: m.type === "user" ? "user" : "assistant",
+      content: m.content,
+    }));
+
+    const botId = (Date.now() + 1).toString();
+    let accumulated = "";
+
     try {
-      const res = await fetch("/api/gemini", {
+      const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [...chatMessages, userMessage]
-        })
+        body: JSON.stringify({ message: userMessage.content, history }),
       });
 
-      const data = await res.json();
-      const botMessage = {
-        id: Date.now().toString(),
-        type: 'bot' as const,
-        content: data.message || "Something went wrong.",
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, botMessage]);
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error("No response stream");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        for (const line of chunk.split("\n")) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const parsed = JSON.parse(line.slice(6));
+            if (parsed.answer) {
+              accumulated += parsed.answer;
+              setChatMessages([
+                ...updatedMessages,
+                { id: botId, type: "bot", content: accumulated, timestamp: new Date() },
+              ]);
+            }
+          } catch { /* incomplete chunk */ }
+        }
+      }
     } catch (err) {
       console.error(err);
+      accumulated = "Something went wrong. Please try again.";
     } finally {
+      const finalMessages = [
+        ...updatedMessages,
+        { id: botId, type: "bot" as const, content: accumulated, timestamp: new Date() },
+      ];
+      setChatMessages(finalMessages);
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(finalMessages));
       setIsProcessing(false);
     }
   };
