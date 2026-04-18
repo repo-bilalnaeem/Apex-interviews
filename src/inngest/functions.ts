@@ -8,6 +8,7 @@ import { eq, inArray, and } from "drizzle-orm";
 import { agents, meetings, user } from "@/db/schema";
 import { embedBatch } from "@/lib/chatbot/embeddings";
 import { storeTranscriptChunks, EmbeddedChunk } from "@/lib/chatbot/vectorStore";
+import { analyzeRecordingWithWhisper, SpeechAnalysis } from "@/lib/speech-analysis";
 
 import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { createAgent, openai, TextMessage } from "@inngest/agent-kit";
@@ -154,6 +155,31 @@ export const meetingsProcessing = inngest.createFunction(
 
       storeTranscriptChunks(event.data.meetingId, embeddedChunks);
     });
+
+    const speechAnalysis = await step.run("whisper-enrichment", async () => {
+      const [meeting] = await db
+        .select({ recordingUrl: meetings.recordingUrl })
+        .from(meetings)
+        .where(eq(meetings.id, event.data.meetingId));
+
+      if (!meeting?.recordingUrl) return null;
+
+      try {
+        return await analyzeRecordingWithWhisper(meeting.recordingUrl);
+      } catch (err) {
+        console.error("Whisper enrichment failed:", err);
+        return null;
+      }
+    });
+
+    if (speechAnalysis) {
+      await step.run("save-speech-analysis", async () => {
+        await db
+          .update(meetings)
+          .set({ speechAnalysis: JSON.stringify(speechAnalysis) })
+          .where(eq(meetings.id, event.data.meetingId));
+      });
+    }
 
   }
 );
