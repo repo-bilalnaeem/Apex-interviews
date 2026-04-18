@@ -175,7 +175,7 @@ const CompletedState = ({ data }: Props) => {
                         <span className="ml-1 text-xs font-normal text-[#6B6B6B]">detected</span>
                       </span>
                       {data.speechAnalysis.fillerWords.total > 0 && (
-                        <span className="text-xs text-[#6B6B6B]">
+                        <span className="break-words text-xs text-[#6B6B6B]">
                           {Object.entries(data.speechAnalysis.fillerWords.breakdown)
                             .map(([word, count]) => `"${word}" ×${count}`)
                             .join(', ')}
