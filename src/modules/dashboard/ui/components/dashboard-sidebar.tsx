@@ -18,7 +18,6 @@ import {
   BotIcon,
   VideoIcon,
   HomeIcon,
-  User,
   FileEdit,
   Target,
 } from "lucide-react";
@@ -37,7 +36,6 @@ const navItems: NavigationItem[] = [
   { icon: HomeIcon, label: "Overview", href: "/overview" },
   { icon: VideoIcon, label: "Meetings", href: "/meetings" },
   { icon: BotIcon, label: "Agents", href: "/agents" },
-  { icon: User, label: "Resume Assistant", href: "/my-resumes" },
   { icon: FileEdit, label: "Cover Letter", href: "/cover-letter" },
   { icon: Target, label: "Tailor Your CV", href: "/tailor-cv" },
 ];

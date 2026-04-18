@@ -43,7 +43,9 @@
       "Bash(find src *)",
       "Bash(npm install *)",
       "Bash(npm view *)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(rm \"src/app/\\(dashboard\\)/my-resumes/page.tsx\")",
+      "Bash(rmdir \"src/app/\\(dashboard\\)/my-resumes\")"
     ]
   }
 }
