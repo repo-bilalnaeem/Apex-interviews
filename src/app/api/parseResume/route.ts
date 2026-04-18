@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
       const pdfParse = (await import('pdf-parse')).default;
       const data = await pdfParse(pdfBuffer);
       extractedText = data?.text ?? '';
-    } catch {
-      // pdf-parse failed — fall through to vision
+    } catch (err) {
+      console.warn('pdf-parse failed, falling back to vision:', err instanceof Error ? err.message : String(err));
     }
 
     // Attempt 2: GPT-4o vision (for scanned/image PDFs)
