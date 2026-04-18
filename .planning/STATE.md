@@ -15,7 +15,7 @@ progress:
 
 **Project:** APEX — UI Redesign
 **Last updated:** 2026-03-27
-**Last session:** 2026-04-18T10:37:59.377Z
+**Last session:** 2026-04-18T10:41:42.295Z
 
 ## Project Reference
 
@@ -72,6 +72,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 - [Phase 10-langchain-agentic-pipeline]: Three-state bubble (dots, label+dots, answer) in same DOM element — no bubble swap for seamless UX
 - [Phase 10-langchain-agentic-pipeline]: TOOL_LABELS default fallback 'Looking up meeting...' for unknown tool names
 - [Phase 11-ai-agents-and-multi-agent-framework]: TranscriptAnalysisAgent reuses fetch_transcript two-pass tool loop from agent.ts; interview-coach and resume-advisor use single-pass streaming without tools
+- [Phase 11-ai-agents-and-multi-agent-framework]: LLM classification uses temperature: 0 and streaming: false for deterministic routing; agent.ts reduced to thin wrapper delegating to orchestrateAndStream; SSE event order: agentName -> toolCall -> answer tokens; default agent is interview_coach
 
 ## Accumulated Context
 
@@ -106,4 +107,5 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 | Phase 10-langchain-agentic-pipeline P01 | 108 | 2 tasks | 2 files |
 | Phase 10-langchain-agentic-pipeline P02 | 63 | 2 tasks | 1 files |
 | Phase 11-ai-agents-and-multi-agent-framework P01 | 110 | 2 tasks | 5 files |
+| Phase 11-ai-agents-and-multi-agent-framework P02 | 92 | 2 tasks | 3 files |
 
