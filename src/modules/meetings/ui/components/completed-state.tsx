@@ -131,6 +131,60 @@ const CompletedState = ({ data }: Props) => {
                   {data.summary}
                 </Markdown>
               </div>
+
+              {/* Speech Analysis */}
+              {data.speechAnalysis && (
+                <div className="mt-4 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] p-4">
+                  <h3 className="mb-3 font-[family-name:var(--font-display)] text-sm font-semibold text-white">
+                    Speech Analysis
+                  </h3>
+                  <div className="flex flex-wrap gap-4">
+                    {/* WPM */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-[#6B6B6B]">Speaking Pace</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-white">
+                          {data.speechAnalysis.wpm} <span className="text-xs font-normal text-[#6B6B6B]">wpm</span>
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            data.speechAnalysis.wpmLabel === 'good'
+                              ? 'bg-[#CAFF02]/10 text-[#CAFF02]'
+                              : data.speechAnalysis.wpmLabel === 'too fast'
+                              ? 'bg-red-500/10 text-red-400'
+                              : 'bg-yellow-500/10 text-yellow-400'
+                          }`}
+                        >
+                          {data.speechAnalysis.wpmLabel}
+                        </span>
+                      </div>
+                      <span className="text-xs text-[#6B6B6B]">
+                        {data.speechAnalysis.wpmLabel === 'too fast'
+                          ? 'Try slowing down — aim for 120–180 wpm'
+                          : data.speechAnalysis.wpmLabel === 'too slow'
+                          ? 'Try speaking a bit faster — aim for 120–180 wpm'
+                          : 'Good pace for an interview'}
+                      </span>
+                    </div>
+
+                    {/* Filler words */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-[#6B6B6B]">Filler Words</span>
+                      <span className="text-lg font-bold text-white">
+                        {data.speechAnalysis.fillerWords.total}
+                        <span className="ml-1 text-xs font-normal text-[#6B6B6B]">detected</span>
+                      </span>
+                      {data.speechAnalysis.fillerWords.total > 0 && (
+                        <span className="text-xs text-[#6B6B6B]">
+                          {Object.entries(data.speechAnalysis.fillerWords.breakdown)
+                            .map(([word, count]) => `"${word}" ×${count}`)
+                            .join(', ')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </TabsContent>
