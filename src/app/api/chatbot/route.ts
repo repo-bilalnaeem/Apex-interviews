@@ -1,5 +1,6 @@
 import { getRelevantDocs } from '@/lib/chatbot/retrieve';
-import { streamChatResponse, ChatMessage } from '@/lib/chatbot/openai';
+import { streamAgentResponse } from '@/lib/chatbot/agent';
+import { ChatMessage } from '@/lib/chatbot/openai';
 import { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -11,11 +12,17 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          await streamChatResponse(
+          await streamAgentResponse(
             message,
             context,
             resume || '',
             history as ChatMessage[],
+            meetingId as string | undefined,
+            (toolName) => {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ toolCall: toolName })}\n\n`)
+              );
+            },
             (token) => {
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({ answer: token })}\n\n`)
