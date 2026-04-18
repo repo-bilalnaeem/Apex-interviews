@@ -12,6 +12,8 @@ export interface SpeechAnalysis {
 }
 
 const FILLER_WORDS = new Set(['um', 'uh', 'like', 'basically', 'literally']);
+const WPM_SLOW_THRESHOLD = 120;
+const WPM_FAST_THRESHOLD = 180;
 
 export function computeSpeechMetrics(
   words: Array<{ word: string; start: number; end: number }>
@@ -37,7 +39,7 @@ export function computeSpeechMetrics(
   const durationMinutes = (words[words.length - 1].end - words[0].start) / 60;
   const wpm = durationMinutes > 0 ? Math.round(words.length / durationMinutes) : 0;
   const wpmLabel: SpeechAnalysis['wpmLabel'] =
-    wpm < 120 ? 'too slow' : wpm > 180 ? 'too fast' : 'good';
+    wpm < WPM_SLOW_THRESHOLD ? 'too slow' : wpm > WPM_FAST_THRESHOLD ? 'too fast' : 'good';
 
   return {
     fillerWords: { total, breakdown },
@@ -51,10 +53,16 @@ export async function analyzeRecordingWithWhisper(
   recordingUrl: string
 ): Promise<SpeechAnalysis | null> {
   const apiKey = process.env.OPENAI_SECRET_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.error('OPENAI_SECRET_KEY not configured for Whisper enrichment');
+    return null;
+  }
 
   const res = await fetch(recordingUrl);
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error(`Failed to fetch recording: ${res.status} ${res.statusText}`);
+    return null;
+  }
 
   const arrayBuffer = await res.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
