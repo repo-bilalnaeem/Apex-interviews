@@ -239,5 +239,16 @@ Plans:
 - [ ] 10-01-PLAN.md — Backend agent: transcript tool + streamAgentResponse + route.ts toolCall SSE events
 - [ ] 10-02-PLAN.md — Frontend UX: toolCall state + per-tool thinking indicator in chat bubble + human verify
 
+### Phase 11: AI Agents and Multi-Agent Framework
+
+**Goal:** Introduce an orchestrator agent that classifies user intent and routes to one of three specialist agents (TranscriptAnalysisAgent, InterviewCoachAgent, ResumeAdvisorAgent), each with dedicated system prompts and tools. The chat UI displays the active agent name in the thinking bubble.
+**Depends on:** Phase 10
+**Plans:** 3 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Agent types + registry + three specialist agent implementations
+- [ ] 11-02-PLAN.md — Orchestrator with LLM-based routing + wire into agent.ts and route.ts SSE
+- [ ] 11-03-PLAN.md — Chat UI agentName SSE handling + active agent display in thinking bubble + human verify
+
 ---
 *Created: 2026-03-26*
