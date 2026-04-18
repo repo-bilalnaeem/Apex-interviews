@@ -222,12 +222,22 @@ Plans:
 
 **Goal:** Replace the hardcoded 3-doc knowledge base and naive keyword matching with a proper vector store and semantic search pipeline. Embed documents at startup, retrieve relevant chunks via cosine similarity, and inject them into the chatbot system prompt context for transcript-grounded Ask AI answers.
 **Depends on:** Phase 8
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 09-01-PLAN.md — OpenAI embedding wrapper (embeddings.ts) + in-memory vector store with cosine similarity (vectorStore.ts)
 - [ ] 09-02-PLAN.md — Expand KB content + rewrite retrieve.ts with semantic search + inngest transcript embedding step
 - [ ] 09-03-PLAN.md — Wire meetingId through /api/chatbot route and chat-ui.tsx to complete the RAG pipeline
+
+### Phase 10: LangChain Agentic Pipeline
+
+**Goal:** Upgrade the Ask AI chatbot with agentic tool use — the agent calls a transcript retrieval tool mid-answer and shows a tool-specific thinking indicator inside the chat bubble before streaming the response.
+**Depends on:** Phase 9
+**Plans:** 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Backend agent: transcript tool + streamAgentResponse + route.ts toolCall SSE events
+- [ ] 10-02-PLAN.md — Frontend UX: toolCall state + per-tool thinking indicator in chat bubble + human verify
 
 ---
 *Created: 2026-03-26*
