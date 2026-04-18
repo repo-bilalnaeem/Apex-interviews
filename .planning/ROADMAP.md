@@ -222,7 +222,7 @@ Plans:
 
 **Goal:** Replace the hardcoded 3-doc knowledge base and naive keyword matching with a proper vector store and semantic search pipeline. Embed documents at startup, retrieve relevant chunks via cosine similarity, and inject them into the chatbot system prompt context for transcript-grounded Ask AI answers.
 **Depends on:** Phase 8
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 09-01-PLAN.md — OpenAI embedding wrapper (embeddings.ts) + in-memory vector store with cosine similarity (vectorStore.ts)

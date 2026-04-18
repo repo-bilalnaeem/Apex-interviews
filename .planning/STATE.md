@@ -15,7 +15,7 @@ progress:
 
 **Project:** APEX — UI Redesign
 **Last updated:** 2026-03-27
-**Last session:** 2026-04-18T05:41:26.241Z
+**Last session:** 2026-04-18T05:48:04.358Z
 
 ## Project Reference
 
@@ -63,6 +63,9 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 - [Phase 07-tools-screens]: TypingIndicator as file-scoped component in ChatInterface.tsx with Reanimated staggered dots (0ms, 150ms, 300ms delays)
 - [Phase 09-rag-pipeline]: text-embedding-ada-002 via OpenAI SDK using OPENAI_SECRET_KEY for vector embeddings
 - [Phase 09-rag-pipeline]: In-memory Map for transcript store — no external vector DB, acceptable for current scale
+- [Phase 09-rag-pipeline]: knowledgeBase changed from Doc[] to string[] matching vectorStore initKB interface
+- [Phase 09-rag-pipeline]: agentSpeakers re-queried inside embed-transcript step for inngest replay safety
+- [Phase 09-rag-pipeline]: route.ts await fix applied at Plan 02 (not deferred to Plan 03) after async signature change
 
 ## Accumulated Context
 
@@ -90,4 +93,5 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 | Phase 06-call-screen P03 | 82 | 1 tasks | 2 files |
 | Phase 07-tools-screens P01 | 99 | 2 tasks | 2 files |
 | Phase 09-rag-pipeline P01 | 86 | 2 tasks | 2 files |
+| Phase 09-rag-pipeline P02 | 259 | 2 tasks | 4 files |
 
