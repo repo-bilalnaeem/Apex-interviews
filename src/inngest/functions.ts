@@ -167,7 +167,8 @@ export const meetingsProcessing = inngest.createFunction(
       try {
         return await analyzeRecordingWithWhisper(meeting.recordingUrl);
       } catch (err) {
-        console.error("Whisper enrichment failed:", err);
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("Whisper enrichment failed:", message);
         return null;
       }
     });
