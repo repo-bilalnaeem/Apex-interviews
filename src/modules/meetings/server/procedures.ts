@@ -29,6 +29,16 @@ import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
 import type { SpeechAnalysis } from "@/lib/speech-analysis";
 
+function parseSpeechAnalysis(raw: string | null | undefined): SpeechAnalysis | null {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as SpeechAnalysis;
+  } catch (err) {
+    console.error("Failed to parse speechAnalysis:", err);
+    return null;
+  }
+}
+
 export const meetingsRouter = createTRPCRouter({
   generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
     const token = streamChat.createToken(ctx.auth.user.id);
@@ -284,9 +294,7 @@ export const meetingsRouter = createTRPCRouter({
       return {
         ...existingMeeting,
         duration,
-        speechAnalysis: existingMeeting.speechAnalysis
-          ? (JSON.parse(existingMeeting.speechAnalysis) as SpeechAnalysis)
-          : null,
+        speechAnalysis: parseSpeechAnalysis(existingMeeting.speechAnalysis),
       };
     }),
 
