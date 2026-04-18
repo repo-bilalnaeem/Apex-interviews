@@ -1230,19 +1230,21 @@ const ResumeAssistantView = ({ initialFeature = null }: ResumeAssistantViewProps
                       </>
                     )}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedFeature(null);
-                      setJobDescription("");
-                      setUserCvContent("");
-                      setUploadedFileName("");
-                    }}
-                    className="border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#1A1A1A] hover:text-[#CAFF02]"
-                  >
-                    ← Back to Tools
-                  </Button>
+                  {!initialFeature && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedFeature(null);
+                        setJobDescription("");
+                        setUserCvContent("");
+                        setUploadedFileName("");
+                      }}
+                      className="border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#1A1A1A] hover:text-[#CAFF02]"
+                    >
+                      ← Back to Tools
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
