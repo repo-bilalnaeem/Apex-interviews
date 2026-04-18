@@ -27,6 +27,7 @@ import { MeetingStatus, StreamTranscriptItem } from "../types";
 import { streamVideo } from "@/lib/stream-video";
 import { generateAvatarUri } from "@/lib/avatar";
 import { streamChat } from "@/lib/stream-chat";
+import type { SpeechAnalysis } from "@/lib/speech-analysis";
 
 export const meetingsRouter = createTRPCRouter({
   generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
@@ -280,7 +281,13 @@ export const meetingsRouter = createTRPCRouter({
           ? (existingMeeting.endedAt.getTime() - existingMeeting.startedAt.getTime()) / 1000
           : null;
 
-      return { ...existingMeeting, duration };
+      return {
+        ...existingMeeting,
+        duration,
+        speechAnalysis: existingMeeting.speechAnalysis
+          ? (JSON.parse(existingMeeting.speechAnalysis) as SpeechAnalysis)
+          : null,
+      };
     }),
 
   // TODO: CHANGE  `getMany` to use `protectedProcedure`
