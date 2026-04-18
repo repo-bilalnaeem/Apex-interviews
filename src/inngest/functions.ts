@@ -6,6 +6,8 @@ import { inngest } from "@/inngest/client";
 import { db } from "@/db";
 import { eq, inArray, and } from "drizzle-orm";
 import { agents, meetings, user } from "@/db/schema";
+import { embedBatch } from "@/lib/chatbot/embeddings";
+import { storeTranscriptChunks, EmbeddedChunk } from "@/lib/chatbot/vectorStore";
 
 import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { createAgent, openai, TextMessage } from "@inngest/agent-kit";
@@ -110,6 +112,47 @@ export const meetingsProcessing = inngest.createFunction(
           status: "completed",
         })
         .where(eq(meetings.id, event.data.meetingId));
+    });
+
+    await step.run("embed-transcript", async () => {
+      if (!transcriptWithSpeakers || transcriptWithSpeakers.length === 0) return;
+
+      // Determine which speaker names belong to agents
+      const speakerIds = [...new Set(transcript.map((item) => item.speaker_id))];
+      const agentSpeakers = await db
+        .select()
+        .from(agents)
+        .where(inArray(agents.id, speakerIds));
+      const agentNames = new Set(agentSpeakers.map((a) => a.name));
+
+      // Chunk transcript by speaker turn; split long turns at 800-char word boundaries
+      const chunkTexts: string[] = [];
+      const chunkSpeakers: string[] = [];
+
+      for (const item of transcriptWithSpeakers) {
+        const speakerLabel = agentNames.has(item.user.name) ? "Agent" : "User";
+        const rawText = item.text ?? "";
+        const segments: string[] = rawText.match(/[\s\S]{1,800}(\s|$)/g) ?? [rawText];
+        for (const segment of segments) {
+          const trimmed = segment.trim();
+          if (!trimmed) continue;
+          chunkTexts.push(`${speakerLabel}: ${trimmed}`);
+          chunkSpeakers.push(speakerLabel);
+        }
+      }
+
+      if (chunkTexts.length === 0) return;
+
+      const vectors = await embedBatch(chunkTexts);
+
+      const embeddedChunks: EmbeddedChunk[] = chunkTexts.map((text, i) => ({
+        text,
+        embedding: vectors[i],
+        meetingId: event.data.meetingId,
+        speaker: chunkSpeakers[i],
+      }));
+
+      storeTranscriptChunks(event.data.meetingId, embeddedChunks);
     });
 
   }
