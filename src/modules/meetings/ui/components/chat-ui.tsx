@@ -22,6 +22,11 @@ interface Message {
 
 const STORAGE_KEY = (id: string) => `meeting_chat_${id}`;
 
+const TOOL_LABELS: Record<string, string> = {
+  fetch_transcript: "Fetching transcript...",
+  // extensible: add future tools here
+};
+
 export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
   const [history, setHistory] = useState<Message[]>(() => {
     if (typeof window === "undefined") return [];
@@ -34,6 +39,7 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [streamedText, setStreamedText] = useState("");
+  const [thinkingLabel, setThinkingLabel] = useState<string>("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -78,9 +84,16 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
         const lines = decoder.decode(value).split("\n").filter((l) => l.startsWith("data:"));
         for (const line of lines) {
           try {
-            const { answer, error } = JSON.parse(line.slice(5));
-            if (error) throw new Error(error);
-            if (answer) { fullResponse = answer; setStreamedText(answer); }
+            const parsed = JSON.parse(line.slice(5));
+            if (parsed.error) throw new Error(parsed.error);
+            if (parsed.toolCall) {
+              setThinkingLabel(TOOL_LABELS[parsed.toolCall] ?? "Looking up meeting...");
+            }
+            if (parsed.answer) {
+              fullResponse = parsed.answer;
+              setStreamedText(parsed.answer);
+              setThinkingLabel(""); // clear thinking label once answer starts
+            }
           } catch {}
         }
       }
@@ -94,6 +107,7 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
     } finally {
       setStreaming(false);
       setStreamedText("");
+      setThinkingLabel("");
     }
   };
 
@@ -139,7 +153,18 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
           {streaming && (
             <div className="flex justify-start">
               <div className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm bg-[#1A1A1A] border border-[#2A2A2A] text-[#F5F5F5]">
-                {streamedText || (
+                {streamedText ? (
+                  streamedText
+                ) : thinkingLabel ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#6B6B6B] text-xs">{thinkingLabel}</span>
+                    <div className="flex gap-1 items-center">
+                      <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" />
+                      <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+                      <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                    </div>
+                  </div>
+                ) : (
                   <div className="flex gap-1 items-center">
                     <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" />
                     <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
