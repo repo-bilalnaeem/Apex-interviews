@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
             resume || '',
             history as ChatMessage[],
             meetingId as string | undefined,
+            (agentName) => {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ agentName })}\n\n`)
+              );
+            },
             (toolName) => {
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({ toolCall: toolName })}\n\n`)
