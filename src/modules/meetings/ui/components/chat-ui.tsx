@@ -5,6 +5,7 @@ import { Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactMarkdown from "react-markdown";
 
 interface ChatUIProps {
   meetingId: string;
@@ -40,6 +41,7 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
   const [streaming, setStreaming] = useState(false);
   const [streamedText, setStreamedText] = useState("");
   const [thinkingLabel, setThinkingLabel] = useState<string>("");
+  const [activeAgent, setActiveAgent] = useState<string>("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,18 +85,25 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
         if (done) break;
         const lines = decoder.decode(value).split("\n").filter((l) => l.startsWith("data:"));
         for (const line of lines) {
+          let parsed: { error?: string; agentName?: string; toolCall?: string; answer?: string };
           try {
-            const parsed = JSON.parse(line.slice(5));
-            if (parsed.error) throw new Error(parsed.error);
-            if (parsed.toolCall) {
-              setThinkingLabel(TOOL_LABELS[parsed.toolCall] ?? "Looking up meeting...");
-            }
-            if (parsed.answer) {
-              fullResponse = parsed.answer;
-              setStreamedText(parsed.answer);
-              setThinkingLabel(""); // clear thinking label once answer starts
-            }
-          } catch {}
+            parsed = JSON.parse(line.slice(5).trim());
+          } catch {
+            continue; // skip malformed SSE lines
+          }
+          if (parsed.error) throw new Error(parsed.error);
+          if (parsed.agentName) {
+            setActiveAgent(parsed.agentName);
+          }
+          if (parsed.toolCall) {
+            setThinkingLabel(TOOL_LABELS[parsed.toolCall] ?? "Looking up meeting...");
+          }
+          if (parsed.answer) {
+            fullResponse += parsed.answer;
+            setStreamedText(fullResponse);
+            setThinkingLabel("");
+            // Keep activeAgent set so it shows during streaming
+          }
         }
       }
 
@@ -108,6 +117,7 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
       setStreaming(false);
       setStreamedText("");
       setThinkingLabel("");
+      setActiveAgent("");
     }
   };
 
@@ -117,9 +127,9 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
   };
 
   return (
-    <div className="flex flex-col h-[500px] rounded-xl border border-[#2A2A2A] bg-[#0A0A0A] overflow-hidden">
+    <div className="flex flex-col h-[500px] rounded-xl border border-[#2A2A2A] bg-[#0A0A0A]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A2A] bg-[#141414]">
+      <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-[#2A2A2A] bg-[#141414] rounded-t-xl">
         <div>
           <p className="text-sm font-semibold text-[#F5F5F5]">Ask AI about this interview</p>
           <p className="text-xs text-[#6B6B6B]">{meetingName}</p>
@@ -132,7 +142,7 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#3A3A3A] [&::-webkit-scrollbar-thumb]:rounded-full">
         <div className="flex flex-col gap-3">
           {history.length === 0 && !streaming && (
             <p className="text-center text-[#6B6B6B] text-sm mt-8">
@@ -146,7 +156,27 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
                   ? "bg-[#CAFF02] text-[#0A0A0A]"
                   : "bg-[#1A1A1A] border border-[#2A2A2A] text-[#F5F5F5]"
               }`}>
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                      li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold text-[#CAFF02]">{children}</strong>,
+                      em: ({ children }) => <em className="italic text-[#AAAAAA]">{children}</em>,
+                      h1: ({ children }) => <h1 className="text-base font-bold mb-2 text-[#CAFF02]">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-sm font-bold mb-1.5 text-[#CAFF02]">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 text-[#DDDDDD]">{children}</h3>,
+                      code: ({ children }) => <code className="bg-[#0A0A0A] text-[#CAFF02] px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                      blockquote: ({ children }) => <blockquote className="border-l-2 border-[#CAFF02] pl-3 text-[#AAAAAA] italic">{children}</blockquote>,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             </div>
           ))}
@@ -154,9 +184,28 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
             <div className="flex justify-start">
               <div className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm bg-[#1A1A1A] border border-[#2A2A2A] text-[#F5F5F5]">
                 {streamedText ? (
-                  streamedText
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                      li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold text-[#CAFF02]">{children}</strong>,
+                      em: ({ children }) => <em className="italic text-[#AAAAAA]">{children}</em>,
+                      h1: ({ children }) => <h1 className="text-base font-bold mb-2 text-[#CAFF02]">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-sm font-bold mb-1.5 text-[#CAFF02]">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 text-[#DDDDDD]">{children}</h3>,
+                      code: ({ children }) => <code className="bg-[#0A0A0A] text-[#CAFF02] px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
+                      blockquote: ({ children }) => <blockquote className="border-l-2 border-[#CAFF02] pl-3 text-[#AAAAAA] italic">{children}</blockquote>,
+                    }}
+                  >
+                    {streamedText}
+                  </ReactMarkdown>
                 ) : thinkingLabel ? (
                   <div className="flex items-center gap-2">
+                    {activeAgent && (
+                      <span className="text-[#CAFF02] text-xs font-medium">{activeAgent}</span>
+                    )}
                     <span className="text-[#6B6B6B] text-xs">{thinkingLabel}</span>
                     <div className="flex gap-1 items-center">
                       <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" />
@@ -165,10 +214,15 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex gap-1 items-center">
-                    <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" />
-                    <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                    <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                  <div className="flex items-center gap-2">
+                    {activeAgent && (
+                      <span className="text-[#CAFF02] text-xs font-medium">{activeAgent}</span>
+                    )}
+                    <div className="flex gap-1 items-center">
+                      <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" />
+                      <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
+                      <div className="w-1.5 h-1.5 bg-[#CAFF02] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                    </div>
                   </div>
                 )}
               </div>
@@ -176,10 +230,10 @@ export const ChatUI = ({ meetingId, meetingName, summary }: ChatUIProps) => {
           )}
           <div ref={bottomRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input */}
-      <div className="border-t border-[#2A2A2A] p-3 bg-[#141414]">
+      <div className="shrink-0 border-t border-[#2A2A2A] p-3 bg-[#141414] rounded-b-xl">
         <div className="flex gap-2">
           <Input
             value={input}
