@@ -15,7 +15,7 @@ progress:
 
 **Project:** APEX — UI Redesign
 **Last updated:** 2026-03-27
-**Last session:** 2026-04-18T06:23:44.918Z
+**Last session:** 2026-04-18T10:37:59.377Z
 
 ## Project Reference
 
@@ -71,12 +71,15 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 - [Phase 10-langchain-agentic-pipeline]: SSE toolCall event emitted before answer tokens when agent calls fetch_transcript tool
 - [Phase 10-langchain-agentic-pipeline]: Three-state bubble (dots, label+dots, answer) in same DOM element — no bubble swap for seamless UX
 - [Phase 10-langchain-agentic-pipeline]: TOOL_LABELS default fallback 'Looking up meeting...' for unknown tool names
+- [Phase 11-ai-agents-and-multi-agent-framework]: TranscriptAnalysisAgent reuses fetch_transcript two-pass tool loop from agent.ts; interview-coach and resume-advisor use single-pass streaming without tools
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 - Phase 8 added: AI Guardrails & Prompt Injection Defense
 - Phase 9 added: RAG Pipeline — vector store + semantic search replacing hardcoded KB
+- Phase 10 added: LangChain Agentic Pipeline — tool-calling agent with SSE streaming and thinking indicator
+- Phase 11 added: AI Agents and Multi-Agent Framework
 
 ## Performance Metrics
 
@@ -102,4 +105,5 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 | Phase 09-rag-pipeline P03 | 193 | 2 tasks | 2 files |
 | Phase 10-langchain-agentic-pipeline P01 | 108 | 2 tasks | 2 files |
 | Phase 10-langchain-agentic-pipeline P02 | 63 | 2 tasks | 1 files |
+| Phase 11-ai-agents-and-multi-agent-framework P01 | 110 | 2 tasks | 5 files |
 
