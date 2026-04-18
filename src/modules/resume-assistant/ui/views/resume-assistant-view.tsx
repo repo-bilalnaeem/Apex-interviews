@@ -29,7 +29,11 @@ import { Document, Packer, Paragraph, TextRun } from "docx";
 
 
 
-const ResumeAssistantView = () => {
+interface ResumeAssistantViewProps {
+  initialFeature?: 'chat' | 'offer-letter' | 'cv-tailoring' | 'cover-letter' | null;
+}
+
+const ResumeAssistantView = ({ initialFeature = null }: ResumeAssistantViewProps) => {
   const CHAT_STORAGE_KEY = "resume_assistant_chat";
 
   // states for chatbot features
@@ -44,7 +48,7 @@ const ResumeAssistantView = () => {
   });
   const [currentMessage, setCurrentMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState<'chat' | 'offer-letter' | 'cv-tailoring' | 'cover-letter' | null>(null);
+  const [selectedFeature, setSelectedFeature] = useState<'chat' | 'offer-letter' | 'cv-tailoring' | 'cover-letter' | null>(initialFeature);
   const [jobDescription, setJobDescription] = useState("");
   const [userCvContent, setUserCvContent] = useState(""); 
   const [uploadedFileName, setUploadedFileName] = useState("");

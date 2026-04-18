@@ -18,7 +18,32 @@
       "Bash(cp /c/Users/bilal/Documents/GitHub/folio-interns/README.md /c/Users/bilal/Documents/GitHub/interviews-app/web-ui/)",
       "Bash(gh repo:*)",
       "Bash(npm list:*)",
-      "Bash(npx drizzle-kit:*)"
+      "Bash(npx drizzle-kit:*)",
+      "Skill(gsd:discuss-phase)",
+      "Skill(gsd:add-phase)",
+      "Skill(gsd:plan-phase)",
+      "Skill(gsd:execute-phase)",
+      "Bash(node *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'feat\\(09-01\\): create OpenAI embedding wrapper \\(embeddings.ts\\) *)",
+      "Bash(git commit -m 'feat\\(09-01\\): create in-memory vector store \\(vectorStore.ts\\) *)",
+      "Bash(git commit -m 'docs\\(09-01\\): complete vector store foundation plan *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(git commit -m 'feat\\(09-03\\): extract meetingId from body, pass to getRelevantDocs *)",
+      "Bash(git commit -m 'feat\\(09-03\\): send meetingId in /api/chatbot fetch body *)",
+      "Bash(npm run *)",
+      "Skill(gsd:pause-work)",
+      "Bash(grep \"scrollbar\" tailwind.config.ts)",
+      "Bash(grep \"scrollbar\" tailwind.config.js)",
+      "Skill(gsd:progress)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(xargs grep *)",
+      "Bash(find src *)",
+      "Bash(npm install *)",
+      "Bash(npm view *)",
+      "Bash(npm test *)"
     ]
   }
 }

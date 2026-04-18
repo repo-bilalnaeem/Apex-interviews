@@ -26,17 +26,17 @@ export const Transcript = ({ meetingId }: Props) => {
   );
 
   return (
-    <div className="bg-white rounded-lg border px-4 py-5 flex flex-col gap-y-4 w-full">
-      <p className="text-sm font-medium">Transcript</p>
+    <div className="rounded-xl border border-[#2A2A2A] bg-[#141414] px-4 py-5 flex flex-col gap-y-4 w-full">
+      <p className="text-sm font-medium text-[#F5F5F5]">Transcript</p>
 
       <div className="relative">
         <Input
           placeholder="Search Transcript"
-          className="pl-7 h-9 w-[240px]"
+          className="pl-7 h-9 w-[240px] bg-[#1A1A1A] border-[#2A2A2A] text-[#F5F5F5] placeholder:text-[#6B6B6B] focus-visible:ring-[#CAFF02]"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-[#6B6B6B]" />
       </div>
       <ScrollArea>
         <div className="flex flex-col gap-y-4">
@@ -44,7 +44,7 @@ export const Transcript = ({ meetingId }: Props) => {
             return (
               <div
                 key={item.start_ts}
-                className="flex flex-col gap-y-2 hover:bg-muted p-4 rounded-md border"
+                className="flex flex-col gap-y-2 hover:bg-[#1A1A1A] p-4 rounded-xl border border-[#2A2A2A] transition-colors"
               >
                 <div className="flex gap-x-2 items-center">
                   <Avatar className="size-6">
@@ -59,14 +59,14 @@ export const Transcript = ({ meetingId }: Props) => {
                       }
                     />
                   </Avatar>
-                  <p className="text-sm font-medium">{item.user.name}</p>
-                  <p className="text-m text-blue-500 font-medium">
+                  <p className="text-sm font-medium text-[#F5F5F5]">{item.user.name}</p>
+                  <p className="text-sm font-medium text-[#CAFF02]">
                     {format(new Date(0, 0, 0, 0, 0, 0, item.start_ts), "mm:ss")}
                   </p>
                 </div>
                 <Highlighter
-                  className="text-sm text-neutral-700"
-                  highlightClassName="bg-yellow-200"
+                  className="text-sm text-[#9B9B9B]"
+                  highlightClassName="bg-[#CAFF02]/30 text-[#F5F5F5] rounded px-0.5"
                   searchWords={[searchQuery]}
                   autoEscape={true}
                   textToHighlight={item.text}
