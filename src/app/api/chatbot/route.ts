@@ -4,8 +4,8 @@ import { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, resume, history = [] } = await req.json();
-    const context = await getRelevantDocs(message);
+    const { message, resume, history = [], meetingId } = await req.json();
+    const context = await getRelevantDocs(message, meetingId as string | undefined);
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
