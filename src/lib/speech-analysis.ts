@@ -39,7 +39,7 @@ export function computeSpeechMetrics(
   const durationMinutes = (words[words.length - 1].end - words[0].start) / 60;
   const wpm = durationMinutes > 0 ? Math.round(words.length / durationMinutes) : 0;
   const wpmLabel: SpeechAnalysis['wpmLabel'] =
-    wpm < WPM_SLOW_THRESHOLD ? 'too slow' : wpm > WPM_FAST_THRESHOLD ? 'too fast' : 'good';
+    wpm === 0 ? 'good' : wpm < WPM_SLOW_THRESHOLD ? 'too slow' : wpm > WPM_FAST_THRESHOLD ? 'too fast' : 'good';
 
   return {
     fillerWords: { total, breakdown },
@@ -66,6 +66,12 @@ export async function analyzeRecordingWithWhisper(
 
   const arrayBuffer = await res.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
+
+  const MAX_WHISPER_BYTES = 25 * 1024 * 1024;
+  if (buffer.byteLength > MAX_WHISPER_BYTES) {
+    console.warn(`Recording too large for Whisper (${buffer.byteLength} bytes), skipping`);
+    return null;
+  }
 
   const client = new OpenAI({ apiKey });
   const file = await toFile(buffer, 'recording.webm', { type: 'audio/webm' });

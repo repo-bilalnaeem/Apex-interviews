@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 export async function pdfToImageBase64(pdfBuffer: Buffer): Promise<string> {
   // pdfjs-dist legacy build works in Node.js without a DOM
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs' as string);
-  const { createCanvas } = await import('canvas');
+  const { createCanvas } = await import('@napi-rs/canvas');
 
   const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(pdfBuffer) });
   const pdfDoc = await loadingTask.promise;

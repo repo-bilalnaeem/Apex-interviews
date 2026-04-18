@@ -8,7 +8,7 @@ import { eq, inArray, and } from "drizzle-orm";
 import { agents, meetings, user } from "@/db/schema";
 import { embedBatch } from "@/lib/chatbot/embeddings";
 import { storeTranscriptChunks, EmbeddedChunk } from "@/lib/chatbot/vectorStore";
-import { analyzeRecordingWithWhisper, SpeechAnalysis } from "@/lib/speech-analysis";
+import { analyzeRecordingWithWhisper } from "@/lib/speech-analysis";
 
 import { StreamTranscriptItem } from "@/modules/meetings/types";
 import { createAgent, openai, TextMessage } from "@inngest/agent-kit";

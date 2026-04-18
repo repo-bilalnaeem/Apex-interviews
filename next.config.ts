@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  serverExternalPackages: ['pdf-parse', 'canvas', 'pdfjs-dist'],
+  serverExternalPackages: ['pdf-parse', 'canvas', '@napi-rs/canvas', 'pdfjs-dist'],
   images: {
     remotePatterns: [
       {
