@@ -28,26 +28,54 @@ ${userCvContent ? 'Personalise the letter using the candidate\'s real experience
 
 Return ONLY the cover letter text. No commentary or meta-text.`;
     } else if (feature === 'cv' && jobDescription && userCvContent) {
-      prompt = `I need you to tailor this existing CV to match the job description provided.
+      prompt = `You are an expert CV writer and ATS optimisation specialist. Rewrite the candidate's CV to maximise its ATS parse score for the target role while keeping it truthful to their actual experience.
 
 **Current CV:**
 ${userCvContent}
 
-**Job Description:**
+**Target Job Description:**
 ${jobDescription}
 
-Please rewrite and optimize the CV to:
-1. Match the job requirements perfectly
-2. Include relevant keywords from the job description
-3. Highlight experiences that align with the role
-4. Reorder sections to emphasize the most relevant qualifications
-5. Quantify achievements where possible
-6. Use action verbs that match the job posting
-7. Make it ATS-friendly
+---
 
-IMPORTANT: Return ONLY the complete, professionally formatted CV content. Do NOT include any explanatory paragraphs, advice, tips, or commentary. Just return the clean, tailored CV content ready for professional use.
+**ATS OPTIMISATION RULES — follow every one of these:**
 
-The output should start directly with the CV content (name/contact info) and end with the last relevant CV section.`;
+KEYWORDS & CONTENT
+- Extract every hard skill, tool, technology, qualification, and job title mentioned in the job description
+- Mirror those exact keywords and phrases in the CV (do not paraphrase — ATS matches exact strings)
+- Place the most critical keywords in the Summary and Skills sections, not only buried in job bullets
+- Add a dedicated "Core Skills" or "Technical Skills" section listing keywords as a clean comma-separated or bulleted list — ATS scans this section heavily
+- Quantify achievements with numbers wherever the original CV allows (%, £/$, headcount, timescales)
+- Use strong action verbs that match the job description language
+
+SECTION HEADINGS — use only these standard names that every ATS recognises:
+- "Professional Summary" (not "Profile", "About Me", "Bio")
+- "Work Experience" (not "Career History", "Employment")
+- "Education"
+- "Core Skills" or "Technical Skills"
+- "Certifications" (if applicable)
+- "Projects" (if applicable)
+
+FORMATTING RULES — ATS parsers fail on complex formatting:
+- Plain text only — no tables, no columns, no text boxes
+- No headers or footers (name/contact at top of main body only)
+- No graphics, icons, or special characters except standard bullets (•) and hyphens
+- No horizontal lines between sections (use blank lines instead)
+- Dates in consistent format: "Month YYYY – Month YYYY" or "MMM YYYY – Present"
+- Job title first on each role line, then company name, then dates — all on separate lines or clearly separated
+- Use • bullets for all job responsibilities and achievements
+
+SECTION ORDER (most ATS-friendly):
+1. Name + Contact (phone, email, LinkedIn, location)
+2. Professional Summary (3-4 lines, keyword-rich)
+3. Core Skills / Technical Skills
+4. Work Experience (reverse chronological)
+5. Education
+6. Certifications / Projects (if present in original)
+
+Do not invent experience, qualifications, or employers not present in the original CV. Only reframe and reword what exists.
+
+IMPORTANT: Return ONLY the complete CV text. No commentary, no tips, no meta-text. Start with the candidate's name and end with the last CV section.`;
     } else {
       const lastMessage = messages?.length ? messages[messages.length - 1] : null;
       prompt = `You are a professional resume and career assistant. Help with resume building, job applications, and career advice.\n\n${lastMessage ? `User question: ${lastMessage.content}` : 'How can I help you with your resume or career today?'}`;
