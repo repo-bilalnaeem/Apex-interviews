@@ -29,35 +29,67 @@ interface AtsAnalysis {
   missing: string[];
 }
 
+// Basic suffix stemmer — strips common English inflections so "managing"
+// matches "management", "developed" matches "develop", etc.
+function stem(word: string): string {
+  return word
+    .replace(/ational$/, "ate")
+    .replace(/tional$/, "tion")
+    .replace(/enci$/, "ence")
+    .replace(/anci$/, "ance")
+    .replace(/izer$/, "ize")
+    .replace(/ising$|izing$/, "ize")
+    .replace(/isation$|ization$/, "ize")
+    .replace(/ational$/, "ate")
+    .replace(/ation$/, "ate")
+    .replace(/ations$/, "ate")
+    .replace(/nesses$/, "")
+    .replace(/ness$/, "")
+    .replace(/ments$/, "")
+    .replace(/ment$/, "")
+    .replace(/ities$|ity$/, "")
+    .replace(/ives$|ive$/, "")
+    .replace(/ables$|able$/, "")
+    .replace(/ings$|ing$/, "")
+    .replace(/edly$|edly$/, "")
+    .replace(/edly$/, "")
+    .replace(/eed$/, "ee")
+    .replace(/ed$/, "")
+    .replace(/ers$|er$/, "")
+    .replace(/ies$/, "y")
+    .replace(/s$/, "");
+}
+
+function tokenize(text: string): string[] {
+  return (text.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? []).filter(
+    (t) => !STOPWORDS.has(t)
+  );
+}
+
 function computeAtsAnalysis(jobDescription: string, cvContent: string): AtsAnalysis {
-  const jdTokens = new Set(
-    (jobDescription.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? []).filter(
-      (t) => !STOPWORDS.has(t)
-    )
-  );
-  const cvSet = new Set(
-    (cvContent.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? []).filter(
-      (t) => !STOPWORDS.has(t)
-    )
-  );
+  const jdRaw = tokenize(jobDescription);
+  const cvRaw = tokenize(cvContent);
+
+  // Build stemmed sets for matching, but keep original tokens for display
+  const jdStemMap = new Map<string, string>(); // stem → original token
+  jdRaw.forEach((t) => { if (!jdStemMap.has(stem(t))) jdStemMap.set(stem(t), t); });
+
+  const cvStems = new Set(cvRaw.map(stem));
 
   const matched: string[] = [];
   const missing: string[] = [];
 
-  jdTokens.forEach((token) => {
-    if (cvSet.has(token)) matched.push(token);
-    else missing.push(token);
+  jdStemMap.forEach((original, stemmed) => {
+    if (cvStems.has(stemmed)) matched.push(original);
+    else missing.push(original);
   });
 
-  const score = Math.min(100, Math.max(0, Math.round((matched.length / Math.max(jdTokens.size, 1)) * 100)));
+  const score = Math.min(100, Math.max(0, Math.round((matched.length / Math.max(jdStemMap.size, 1)) * 100)));
   return { score, matched: matched.slice(0, 30), missing: missing.slice(0, 30) };
 }
 
 function computeAtsScore(jobDescription: string, cvContent: string): number {
-  const raw = computeAtsAnalysis(jobDescription, cvContent).score;
-  // Normalize to 80-95 range: the tailoring is ATS-optimized so the raw
-  // token-match score underrepresents true alignment. Map 0-100 → 80-95.
-  return Math.round(80 + (raw / 100) * 15);
+  return computeAtsAnalysis(jobDescription, cvContent).score;
 }
 
 const TailorCvView = () => {
@@ -967,9 +999,9 @@ const TailorCvView = () => {
                 <div className="flex items-center gap-3 p-4 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A]">
                   <div
                     className={`px-3 py-1 rounded-full text-sm font-bold ${
-                      atsScore >= 70
+                      (atsScore ?? 0) >= 70
                         ? "bg-[#CAFF02]/20 text-[#CAFF02]"
-                        : atsScore >= 40
+                        : (atsScore ?? 0) >= 50
                         ? "bg-[#FBBF24]/20 text-[#FBBF24]"
                         : "bg-red-500/20 text-red-400"
                     }`}
@@ -978,9 +1010,11 @@ const TailorCvView = () => {
                   </div>
                   <p className="text-xs text-[#6B6B6B]">
                     Tailored CV score —{" "}
-                    {atsScore >= 90
-                      ? "excellent keyword alignment — ready to apply"
-                      : "strong keyword alignment with the job description"}
+                    {atsScore >= 70
+                      ? "strong keyword alignment — ready to apply"
+                      : atsScore >= 50
+                      ? "good alignment — consider regenerating for a higher score"
+                      : "moderate alignment — try regenerating"}
                   </p>
                 </div>
               )}
