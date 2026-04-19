@@ -5,11 +5,45 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, feature, jobDescription, userCvContent, schema } = await req.json();
+    const { messages, feature, jobDescription, userCvContent, answers, schema } = await req.json();
 
     let prompt = '';
 
-    if (feature === 'cover-letter' && jobDescription) {
+    if (feature === 'cv-questions' && jobDescription && userCvContent) {
+      prompt = `You are a career coach helping a candidate tailor their CV for a specific role. Analyse the gap between their current CV and the job description, then generate exactly 5 targeted questions that will uncover additional information to strengthen their CV.
+
+**Current CV:**
+${userCvContent}
+
+**Target Job Description:**
+${jobDescription}
+
+Focus questions on:
+- Specific achievements or metrics they haven't mentioned (e.g. "What results did you achieve in X role?")
+- Experience with tools/skills mentioned in the JD but absent or vague in the CV
+- Projects or responsibilities that could be reframed to match the role
+- Qualifications or certifications relevant to the role
+- Any experience gaps that could be addressed
+
+Return a JSON object with this exact shape:
+{
+  "questions": [
+    { "id": 1, "question": "...", "hint": "e.g. specific numbers, tools, outcomes" },
+    { "id": 2, "question": "...", "hint": "..." },
+    { "id": 3, "question": "...", "hint": "..." },
+    { "id": 4, "question": "...", "hint": "..." },
+    { "id": 5, "question": "...", "hint": "..." }
+  ]
+}`;
+
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+      });
+      return NextResponse.json(JSON.parse(completion.choices[0].message.content ?? '{}'));
+
+    } else if (feature === 'cover-letter' && jobDescription) {
       prompt = `Generate a professional cover letter for a candidate applying to this role.
 
 ${userCvContent ? `**Candidate CV:**\n${userCvContent}\n\n` : ''}**Job Description:**
@@ -28,6 +62,10 @@ ${userCvContent ? 'Personalise the letter using the candidate\'s real experience
 
 Return ONLY the cover letter text. No commentary or meta-text.`;
     } else if (feature === 'cv' && jobDescription && userCvContent) {
+      const answersBlock = answers && answers.length > 0
+        ? `\n**Additional context from candidate (use this to enrich the CV):**\n${answers.map((a: { question: string; answer: string }, i: number) => `Q${i + 1}: ${a.question}\nA: ${a.answer}`).join('\n\n')}\n`
+        : '';
+
       prompt = `You are an expert CV writer and ATS optimisation specialist. Rewrite the candidate's CV to maximise its ATS parse score for the target role while keeping it truthful to their actual experience.
 
 **Current CV:**
@@ -35,7 +73,7 @@ ${userCvContent}
 
 **Target Job Description:**
 ${jobDescription}
-
+${answersBlock}
 ---
 
 **SINGLE PAGE CONSTRAINT — this is the highest priority rule:**
@@ -83,7 +121,7 @@ SECTION ORDER (most ATS-friendly):
 5. Education
 6. Certifications / Projects (if present in original)
 
-Do not invent experience, qualifications, or employers not present in the original CV. Only reframe and reword what exists.
+Do not invent experience, qualifications, or employers not present in the original CV or the candidate's answers above. You MAY incorporate specific achievements, tools, metrics, and experiences the candidate described in their answers — these are real and should be woven into the relevant role bullets.
 
 IMPORTANT: Return ONLY the complete CV text. No commentary, no tips, no meta-text. Start with the candidate's name and end with the last CV section.`;
     } else {

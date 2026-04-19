@@ -5,7 +5,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, CheckCircle, Download, Target, BarChart2 } from "lucide-react";
+import { Upload, FileText, CheckCircle, Download, Target, BarChart2, MessageSquare, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { jsPDF } from "jspdf";
@@ -102,6 +102,13 @@ const TailorCvView = () => {
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [cvAtsAnalysis, setCvAtsAnalysis] = useState<AtsAnalysis | null>(null);
   const [isCheckingAts, setIsCheckingAts] = useState(false);
+
+  // Questionnaire flow
+  type Question = { id: number; question: string; hint: string };
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -722,6 +729,29 @@ const TailorCvView = () => {
     saveAs(blob, `tailored-resume-${Date.now()}.docx`);
   };
 
+  const handleGetQuestions = async () => {
+    setIsGeneratingQuestions(true);
+    try {
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feature: "cv-questions", jobDescription, userCvContent }),
+      });
+      const data = await res.json();
+      if (data.questions?.length) {
+        setQuestions(data.questions);
+        setAnswers({});
+        setShowQuestionnaire(true);
+      } else {
+        toast.error("Failed to generate questions. Please try again.");
+      }
+    } catch {
+      toast.error("Failed to generate questions. Please try again.");
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
+  };
+
   const handleCheckAts = () => {
     setIsCheckingAts(true);
     setTimeout(() => {
@@ -746,7 +776,14 @@ const TailorCvView = () => {
       const res = await fetch("/api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feature: "cv", jobDescription, userCvContent }),
+        body: JSON.stringify({
+          feature: "cv",
+          jobDescription,
+          userCvContent,
+          answers: questions.length > 0
+            ? questions.map((q) => ({ question: q.question, answer: answers[q.id] ?? "" })).filter((a) => a.answer.trim())
+            : [],
+        }),
       });
       const data = await res.json();
       const content = removeAIAdviceParagraphs(data.message || "Generated CV content");
@@ -883,6 +920,76 @@ const TailorCvView = () => {
                   </p>
                 </div>
               </div>
+
+              {/* AI Questionnaire */}
+              {userCvContent && jobDescription && !generatedContent && (
+                <div className="rounded-xl border border-[#2A2A2A] bg-[#1A1A1A] overflow-hidden">
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 bg-[#CAFF02]/10 rounded-lg">
+                        <MessageSquare className="size-4 text-[#CAFF02]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-[#F5F5F5]">Enhance with AI Questions</p>
+                        <p className="text-xs text-[#6B6B6B]">
+                          {showQuestionnaire
+                            ? "Answer these to help the AI write a stronger, higher-scoring CV"
+                            : "Let the AI ask you targeted questions to fill in gaps and boost your ATS score"}
+                        </p>
+                      </div>
+                    </div>
+                    {!showQuestionnaire && (
+                      <Button
+                        onClick={handleGetQuestions}
+                        disabled={isGeneratingQuestions}
+                        size="sm"
+                        className="bg-[#CAFF02] text-[#0A0A0A] hover:bg-[#B8E602] font-semibold disabled:opacity-40 shrink-0"
+                      >
+                        {isGeneratingQuestions ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 border-2 border-[#0A0A0A] border-t-transparent rounded-full animate-spin" />
+                            Analysing...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            Get Questions <ChevronRight className="size-3.5" />
+                          </div>
+                        )}
+                      </Button>
+                    )}
+                    {showQuestionnaire && (
+                      <button
+                        onClick={() => { setShowQuestionnaire(false); setQuestions([]); setAnswers({}); }}
+                        className="text-xs text-[#6B6B6B] hover:text-[#F5F5F5] transition-colors"
+                      >
+                        Skip
+                      </button>
+                    )}
+                  </div>
+
+                  {showQuestionnaire && questions.length > 0 && (
+                    <div className="border-t border-[#2A2A2A] p-4 space-y-4">
+                      {questions.map((q) => (
+                        <div key={q.id} className="space-y-1.5">
+                          <label className="text-sm font-medium text-[#F5F5F5]">
+                            <span className="text-[#CAFF02] mr-2">{q.id}.</span>{q.question}
+                          </label>
+                          <textarea
+                            value={answers[q.id] ?? ""}
+                            onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                            placeholder={q.hint}
+                            rows={2}
+                            className="w-full p-3 bg-[#111111] border border-[#2A2A2A] text-[#F5F5F5] placeholder:text-[#4B4B4B] rounded-lg resize-none text-sm focus:ring-1 focus:ring-[#CAFF02] focus:border-transparent transition-all outline-none"
+                          />
+                        </div>
+                      ))}
+                      <p className="text-xs text-[#6B6B6B]">
+                        Answer as many as you can — skip any that don&apos;t apply. The more detail you give, the better the CV.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* ATS Checker */}
               {userCvContent && jobDescription && (
