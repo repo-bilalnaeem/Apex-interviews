@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import ResumeAssistantView from "@/modules/resume-assistant/ui/views/resume-assistant-view";
+import TailorCvView from "@/modules/resume-assistant/ui/views/tailor-cv-view";
 
 export default function TailorCvPage() {
   return (
     <Suspense>
-      <ResumeAssistantView initialFeature="cv-tailoring" />
+      <TailorCvView />
     </Suspense>
   );
 }

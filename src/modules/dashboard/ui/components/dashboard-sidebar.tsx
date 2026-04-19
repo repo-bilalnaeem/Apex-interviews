@@ -20,6 +20,7 @@ import {
   HomeIcon,
   FileEdit,
   Target,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
@@ -38,6 +39,7 @@ const navItems: NavigationItem[] = [
   { icon: BotIcon, label: "Agents", href: "/agents" },
   { icon: FileEdit, label: "Cover Letter", href: "/cover-letter" },
   { icon: Target, label: "Tailor Your CV", href: "/tailor-cv" },
+  { icon: BookOpen, label: "API Docs", href: "/api-docs" },
 ];
 
 export const DashboardSidebar = () => {
