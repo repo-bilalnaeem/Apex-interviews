@@ -10,20 +10,23 @@ export async function POST(req: NextRequest) {
     let prompt = '';
 
     if (feature === 'cover-letter' && jobDescription) {
-      prompt = `Generate a professional cover letter based on this job description: ${jobDescription}.
+      prompt = `Generate a professional cover letter for a candidate applying to this role.
+
+${userCvContent ? `**Candidate CV:**\n${userCvContent}\n\n` : ''}**Job Description:**
+${jobDescription}
 
 Format it with proper spacing and structure including:
-- Header with contact information
 - Date
-- Employer's address
-- Dear Hiring Manager/[Name]
-- Opening paragraph expressing interest
-- Body paragraphs highlighting relevant skills and experience
-- Specific examples matching job requirements
+- Dear Hiring Manager
+- Opening paragraph expressing interest in the specific role
+- Body paragraphs drawing on the candidate's actual experience and skills${userCvContent ? ' from their CV' : ''} to match the job requirements
+- Specific examples aligning the candidate's background with the role
 - Closing paragraph with call to action
 - Professional sign-off
 
-Make it compelling, personalized, and directly address the job requirements.`;
+${userCvContent ? 'Personalise the letter using the candidate\'s real experience, job titles, and achievements from their CV. Do not invent details not present in the CV.' : 'Make it compelling and directly address the job requirements.'}
+
+Return ONLY the cover letter text. No commentary or meta-text.`;
     } else if (feature === 'cv' && jobDescription && userCvContent) {
       prompt = `I need you to tailor this existing CV to match the job description provided.
 
