@@ -5,7 +5,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, CheckCircle, Download, Target } from "lucide-react";
+import { Upload, FileText, CheckCircle, Download, Target, BarChart2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { jsPDF } from "jspdf";
@@ -23,22 +23,38 @@ const STOPWORDS = new Set([
   "works","working","worked","team","years","year",
 ]);
 
-function computeAtsScore(jobDescription: string, cvContent: string): number {
+interface AtsAnalysis {
+  score: number;
+  matched: string[];
+  missing: string[];
+}
+
+function computeAtsAnalysis(jobDescription: string, cvContent: string): AtsAnalysis {
   const jdTokens = new Set(
     (jobDescription.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? []).filter(
       (t) => !STOPWORDS.has(t)
     )
   );
-  const cvTokens = cvContent.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? [];
-  const cvSet = new Set(cvTokens.filter((t) => !STOPWORDS.has(t)));
+  const cvSet = new Set(
+    (cvContent.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? []).filter(
+      (t) => !STOPWORDS.has(t)
+    )
+  );
 
-  let matches = 0;
+  const matched: string[] = [];
+  const missing: string[] = [];
+
   jdTokens.forEach((token) => {
-    if (cvSet.has(token)) matches++;
+    if (cvSet.has(token)) matched.push(token);
+    else missing.push(token);
   });
 
-  const score = Math.round((matches / Math.max(jdTokens.size, 1)) * 100);
-  return Math.min(100, Math.max(0, score));
+  const score = Math.min(100, Math.max(0, Math.round((matched.length / Math.max(jdTokens.size, 1)) * 100)));
+  return { score, matched: matched.slice(0, 30), missing: missing.slice(0, 30) };
+}
+
+function computeAtsScore(jobDescription: string, cvContent: string): number {
+  return computeAtsAnalysis(jobDescription, cvContent).score;
 }
 
 const TailorCvView = () => {
@@ -49,6 +65,8 @@ const TailorCvView = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
+  const [cvAtsAnalysis, setCvAtsAnalysis] = useState<AtsAnalysis | null>(null);
+  const [isCheckingAts, setIsCheckingAts] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -677,6 +695,14 @@ const TailorCvView = () => {
     saveAs(blob, `tailored-resume-${Date.now()}.docx`);
   };
 
+  const handleCheckAts = () => {
+    setIsCheckingAts(true);
+    setTimeout(() => {
+      setCvAtsAnalysis(computeAtsAnalysis(jobDescription, userCvContent));
+      setIsCheckingAts(false);
+    }, 400);
+  };
+
   const handleDownload = async (type: "pdf" | "word") => {
     if (generatedContent) {
       // Already generated — download directly
@@ -831,7 +857,117 @@ const TailorCvView = () => {
                 </div>
               </div>
 
-              {/* ATS Score Badge */}
+              {/* ATS Checker */}
+              {userCvContent && jobDescription && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <BarChart2 className="size-4 text-[#CAFF02]" />
+                      <span className="text-sm font-medium text-[#F5F5F5]">ATS Score Checker</span>
+                      <span className="text-xs text-[#6B6B6B]">— check your current CV before tailoring</span>
+                    </div>
+                    <Button
+                      onClick={handleCheckAts}
+                      disabled={isCheckingAts}
+                      size="sm"
+                      variant="outline"
+                      className="border-[#CAFF02]/40 text-[#CAFF02] hover:bg-[#CAFF02]/10 hover:border-[#CAFF02] disabled:opacity-40"
+                    >
+                      {isCheckingAts ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 border-2 border-[#CAFF02] border-t-transparent rounded-full animate-spin" />
+                          Checking...
+                        </div>
+                      ) : (
+                        "Check ATS Score"
+                      )}
+                    </Button>
+                  </div>
+
+                  {cvAtsAnalysis && (
+                    <div className="bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] p-5 space-y-4">
+                      {/* Score bar */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-[#6B6B6B]">Keyword match against job description</span>
+                          <span
+                            className={`text-lg font-bold ${
+                              cvAtsAnalysis.score >= 70
+                                ? "text-[#CAFF02]"
+                                : cvAtsAnalysis.score >= 40
+                                ? "text-[#FBBF24]"
+                                : "text-red-400"
+                            }`}
+                          >
+                            {cvAtsAnalysis.score}%
+                          </span>
+                        </div>
+                        <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              cvAtsAnalysis.score >= 70
+                                ? "bg-[#CAFF02]"
+                                : cvAtsAnalysis.score >= 40
+                                ? "bg-[#FBBF24]"
+                                : "bg-red-400"
+                            }`}
+                            style={{ width: `${cvAtsAnalysis.score}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-[#6B6B6B]">
+                          {cvAtsAnalysis.score >= 70
+                            ? "Good match — your CV already aligns well with this role."
+                            : cvAtsAnalysis.score >= 40
+                            ? "Moderate match — tailoring will significantly improve your chances."
+                            : "Low match — your CV is missing many keywords from this job description."}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {/* Matched keywords */}
+                        {cvAtsAnalysis.matched.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs font-medium text-[#34D399]">
+                              Matched keywords ({cvAtsAnalysis.matched.length})
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {cvAtsAnalysis.matched.map((kw) => (
+                                <span
+                                  key={kw}
+                                  className="px-2 py-0.5 rounded-md text-xs bg-[#34D399]/10 text-[#34D399] border border-[#34D399]/20"
+                                >
+                                  {kw}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Missing keywords */}
+                        {cvAtsAnalysis.missing.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs font-medium text-red-400">
+                              Missing keywords ({cvAtsAnalysis.missing.length})
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {cvAtsAnalysis.missing.map((kw) => (
+                                <span
+                                  key={kw}
+                                  className="px-2 py-0.5 rounded-md text-xs bg-red-500/10 text-red-400 border border-red-500/20"
+                                >
+                                  {kw}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ATS Score Badge (post-tailoring) */}
               {atsScore !== null && (
                 <div className="flex items-center gap-3 p-4 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A]">
                   <div
@@ -846,11 +982,12 @@ const TailorCvView = () => {
                     {atsScore}% ATS Match
                   </div>
                   <p className="text-xs text-[#6B6B6B]">
+                    Tailored CV score —{" "}
                     {atsScore >= 70
-                      ? "Strong keyword alignment with job description"
+                      ? "strong keyword alignment with the job description"
                       : atsScore >= 40
-                      ? "Moderate alignment — consider adding more keywords"
-                      : "Low alignment — review job requirements carefully"}
+                      ? "moderate alignment — regenerate for better results"
+                      : "low alignment — try regenerating"}
                   </p>
                 </div>
               )}
