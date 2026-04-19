@@ -10,6 +10,8 @@ import {
   ClockIcon,
   HelpCircleIcon,
   ArrowRightIcon,
+  FileEdit,
+  Target,
 } from "lucide-react";
 import Link from "next/link";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -51,7 +53,7 @@ const HomeView = () => {
     <div className="flex flex-col gap-y-6 p-6 dashboard-btn">
       {/* Header */}
       <div>
-        <p className="text-[13px] text-[#6B6B6B]">
+        <p className="text-[13px] text-[#6B6B6B]" suppressHydrationWarning>
           {getGreeting()}, {firstName}
         </p>
         <h1 className="font-[family-name:var(--font-display)] text-[32px] font-bold leading-tight text-white">
@@ -201,6 +203,26 @@ const HomeView = () => {
           >
             <HelpCircleIcon className="mr-2 h-4 w-4" />
             Take Tour
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="h-10 flex-1 rounded-xl border-[#2A2A2A] bg-[#1E1E1E] text-[#F5F5F5] hover:border-[#CAFF02]/30 hover:bg-[#252525] transition-all duration-150"
+          >
+            <Link href="/cover-letter">
+              <FileEdit className="mr-2 h-4 w-4" />
+              Cover Letter
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="h-10 flex-1 rounded-xl border-[#2A2A2A] bg-[#1E1E1E] text-[#F5F5F5] hover:border-[#CAFF02]/30 hover:bg-[#252525] transition-all duration-150"
+          >
+            <Link href="/tailor-cv">
+              <Target className="mr-2 h-4 w-4" />
+              Tailor CV
+            </Link>
           </Button>
         </div>
       </div>
