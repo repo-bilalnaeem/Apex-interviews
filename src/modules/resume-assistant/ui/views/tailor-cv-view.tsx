@@ -367,133 +367,125 @@ const TailorCvView = () => {
     return sections;
   };
 
-  const addSectionToPDF = (
-    doc: any,
-    title: string,
-    content: string,
-    yPosition: number,
-    margin: number,
-    maxWidth: number,
-    pageHeight: number
-  ) => {
-    if (yPosition > pageHeight - 80) {
-      doc.addPage();
-      yPosition = margin;
-    }
-
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(46, 89, 132);
-    doc.text(title, margin, yPosition);
-    yPosition += 5;
-
-    doc.setDrawColor(46, 89, 132);
-    doc.setLineWidth(0.3);
-    doc.line(margin, yPosition, margin + doc.getTextWidth(title), yPosition);
-    yPosition += 8;
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(0, 0, 0);
-
-    const cleanContent = content
-      .replace(/\*\*(.*?)\*\*/g, "$1")
-      .replace(/\*(.*?)\*/g, "$1")
-      .replace(/^\s*-{2,}\s*$/gm, "")
-      .replace(/^\s*={2,}\s*$/gm, "")
-      .replace(/^\s*_{2,}\s*$/gm, "");
-
-    const contentParts = cleanContent
-      .split("\n")
-      .filter((part) => part.trim() && !part.match(/^[-=_]{2,}$/));
-
-    contentParts.forEach((part) => {
-      if (yPosition > pageHeight - 25) {
-        doc.addPage();
-        yPosition = margin;
-      }
-      const trimmed = part.trim();
-      if (trimmed.startsWith("•") || trimmed.startsWith("-") || trimmed.startsWith("*")) {
-        const bulletText = trimmed.substring(1).trim();
-        if (bulletText) {
-          const lines = doc.splitTextToSize(`• ${bulletText}`, maxWidth - 10);
-          doc.text(lines, margin + 5, yPosition);
-          yPosition += lines.length * 4.5 + 2;
-        }
-      } else if (trimmed.length > 0) {
-        const lines = doc.splitTextToSize(trimmed, maxWidth);
-        doc.text(lines, margin, yPosition);
-        yPosition += lines.length * 4.5 + (trimmed.length > 100 ? 6 : 3);
-      }
-    });
-
-    return yPosition + 12;
-  };
-
   const createPDF = async (content: string) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
+    const margin = 15;
     const maxWidth = pageWidth - margin * 2;
-    let yPosition = margin;
+    const usableHeight = pageHeight - margin * 2;
 
     const sections = parseResumeContent(content);
 
-    if (sections.header) {
-      doc.setFontSize(20);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(46, 89, 132);
-      const name =
-        (typeof sections.header === "string"
-          ? sections.header.split("\n")[0]
-          : sections.header.name) || "Resume";
-      const nameLines = doc.splitTextToSize(name, maxWidth);
-      doc.text(nameLines, margin, yPosition);
-      yPosition += nameLines.length * 8 + 3;
+    // Render pass — writes to doc and returns final yPosition
+    const render = (scale: number) => {
+      // Clear by creating a fresh doc each pass
+      const d = new jsPDF();
+      let y = margin;
 
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(102, 102, 102);
-      const contactInfo =
-        typeof sections.header === "string"
-          ? sections.header.split("\n").slice(1).join(" | ")
-          : sections.header.contact || "";
-      if (contactInfo) {
-        const contactLines = doc.splitTextToSize(contactInfo, maxWidth);
-        doc.text(contactLines, margin, yPosition);
-        yPosition += contactLines.length * 5 + 15;
-      } else {
-        yPosition += 10;
+      if (sections.header) {
+        d.setFontSize(16 * scale);
+        d.setFont("helvetica", "bold");
+        d.setTextColor(46, 89, 132);
+        const name =
+          (typeof sections.header === "string"
+            ? sections.header.split("\n")[0]
+            : sections.header.name) || "Resume";
+        const nameLines = d.splitTextToSize(name, maxWidth);
+        d.text(nameLines, margin, y);
+        y += nameLines.length * (7 * scale) + 2;
+
+        d.setFontSize(8 * scale);
+        d.setFont("helvetica", "normal");
+        d.setTextColor(102, 102, 102);
+        const contactInfo =
+          typeof sections.header === "string"
+            ? sections.header.split("\n").slice(1).join(" | ")
+            : sections.header.contact || "";
+        if (contactInfo) {
+          const cl = d.splitTextToSize(contactInfo, maxWidth);
+          d.text(cl, margin, y);
+          y += cl.length * (4 * scale) + 6;
+        } else {
+          y += 6;
+        }
+
+        d.setDrawColor(46, 89, 132);
+        d.setLineWidth(0.5);
+        d.line(margin, y, pageWidth - margin, y);
+        y += 8;
       }
 
-      doc.setDrawColor(46, 89, 132);
-      doc.setLineWidth(1);
-      doc.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 15;
+      const renderSection = (title: string, sectionContent: string) => {
+        d.setFontSize(9 * scale);
+        d.setFont("helvetica", "bold");
+        d.setTextColor(46, 89, 132);
+        d.text(title, margin, y);
+        y += 1;
+        d.setDrawColor(46, 89, 132);
+        d.setLineWidth(0.2);
+        d.line(margin, y, margin + d.getTextWidth(title), y);
+        y += 5;
+
+        d.setFontSize(8.5 * scale);
+        d.setFont("helvetica", "normal");
+        d.setTextColor(0, 0, 0);
+
+        const clean = sectionContent
+          .replace(/\*\*(.*?)\*\*/g, "$1")
+          .replace(/\*(.*?)\*/g, "$1")
+          .replace(/^\s*-{2,}\s*$/gm, "");
+
+        clean.split("\n").filter((l) => l.trim() && !l.match(/^[-=_]{2,}$/)).forEach((part) => {
+          const t = part.trim();
+          if (t.startsWith("•") || t.startsWith("-") || t.startsWith("*")) {
+            const bt = t.substring(1).trim();
+            if (bt) {
+              const lines = d.splitTextToSize(`• ${bt}`, maxWidth - 8);
+              d.text(lines, margin + 4, y);
+              y += lines.length * (4 * scale) + 1;
+            }
+          } else if (t.length > 0) {
+            const lines = d.splitTextToSize(t, maxWidth);
+            d.text(lines, margin, y);
+            y += lines.length * (4 * scale) + (t.length < 60 ? 1 : 2);
+          }
+        });
+        y += 5;
+      };
+
+      [
+        { key: "summary", title: "PROFESSIONAL SUMMARY" },
+        { key: "experience", title: "WORK EXPERIENCE" },
+        { key: "skills", title: "CORE SKILLS" },
+        { key: "education", title: "EDUCATION" },
+      ].forEach(({ key, title }) => {
+        if (sections[key]) renderSection(title, sections[key]);
+      });
+
+      Object.keys(sections).forEach((key) => {
+        if (!["header", "summary", "experience", "education", "skills"].includes(key) && sections[key]) {
+          renderSection(key.toUpperCase(), sections[key]);
+        }
+      });
+
+      return { doc: d, finalY: y };
+    };
+
+    // First pass at scale 1 to measure
+    const firstPass = render(1);
+    const overflow = firstPass.finalY - (margin + usableHeight);
+
+    let finalDoc: jsPDF;
+    if (overflow <= 0) {
+      finalDoc = firstPass.doc;
+    } else {
+      // Scale down proportionally to fit, capped at 0.72 minimum
+      const scale = Math.max(0.72, 1 - overflow / usableHeight);
+      finalDoc = render(scale).doc;
     }
 
-    const sectionOrder = [
-      { key: "summary", title: "SUMMARY" },
-      { key: "experience", title: "EXPERIENCE" },
-      { key: "skills", title: "CORE COMPETENCIES" },
-      { key: "education", title: "EDUCATION" },
-    ];
-
-    sectionOrder.forEach(({ key, title }) => {
-      if (sections[key]) {
-        yPosition = addSectionToPDF(doc, title, sections[key], yPosition, margin, maxWidth, pageHeight);
-      }
-    });
-
-    Object.keys(sections).forEach((key) => {
-      if (!["header", "summary", "experience", "education", "skills"].includes(key) && sections[key]) {
-        const title = key.toUpperCase().replace(/([A-Z])/g, " $1").trim();
-        yPosition = addSectionToPDF(doc, title, sections[key], yPosition, margin, maxWidth, pageHeight);
-      }
-    });
-
-    doc.save(`tailored-resume-${Date.now()}.pdf`);
+    finalDoc.save(`tailored-resume-${Date.now()}.pdf`);
   };
 
   const createWord = async (content: string) => {

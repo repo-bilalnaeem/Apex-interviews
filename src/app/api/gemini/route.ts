@@ -38,13 +38,23 @@ ${jobDescription}
 
 ---
 
+**SINGLE PAGE CONSTRAINT — this is the highest priority rule:**
+The entire CV MUST fit on one A4 page. This means:
+- Professional Summary: 2-3 lines maximum
+- Core Skills: one line of comma-separated keywords, no bullets
+- Each job role: job title, company, dates on one line; maximum 3 bullet points per role; each bullet max 12 words
+- Education: one line per qualification (Degree, Institution, Year)
+- Maximum 3 most recent/relevant roles — omit older roles if needed to fit
+- No blank lines between bullets within a section; single blank line between sections only
+- Total word count must not exceed 400 words
+
 **ATS OPTIMISATION RULES — follow every one of these:**
 
 KEYWORDS & CONTENT
 - Extract every hard skill, tool, technology, qualification, and job title mentioned in the job description
 - Mirror those exact keywords and phrases in the CV (do not paraphrase — ATS matches exact strings)
 - Place the most critical keywords in the Summary and Skills sections, not only buried in job bullets
-- Add a dedicated "Core Skills" or "Technical Skills" section listing keywords as a clean comma-separated or bulleted list — ATS scans this section heavily
+- Core Skills section: comma-separated single line of the most important keywords from the job description
 - Quantify achievements with numbers wherever the original CV allows (%, £/$, headcount, timescales)
 - Use strong action verbs that match the job description language
 
