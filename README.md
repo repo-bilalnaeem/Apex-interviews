@@ -210,7 +210,7 @@ When a meeting ends, Stream sends a webhook that fires the `meetings/processing`
 
 ### 4. LangChain Agentic Pipeline
 
-**Files:** `src/lib/chatbot/agent.ts`, `src/app/api/gemini/route.ts`
+**Files:** `src/lib/chatbot/agent.ts`, `src/app/api/openai/route.ts`
 
 The chatbot uses a **manual tool loop** (not `AgentExecutor`) built with `@langchain/openai` and `@langchain/core` for clean token-level streaming:
 
