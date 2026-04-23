@@ -11,7 +11,7 @@
 ## Demo
 
 [Watch the demo on YouTube](https://youtu.be/J6xnt58yUmM)
-![Demo Screenshot 2](./screenshots/img_9.png)
+![Demo Screenshot 2](./screenshots/img_9.jpeg)
 
 ---
 
