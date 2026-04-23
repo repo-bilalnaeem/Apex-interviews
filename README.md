@@ -1,5 +1,5 @@
 # Apex Interviews
-
+![Demo Screenshot 2](./screenshots/img_1.png)
 **Problem:** Job seekers don't get enough realistic, personalised interview practice before high-stakes applications.
 
 **Value:** Apex gives you AI mock interviews over live video, CV tailoring with ATS scoring, and real-time coaching — all in one app.
@@ -11,6 +11,7 @@
 ## Demo
 
 [Watch the demo on YouTube](https://youtu.be/J6xnt58yUmM)
+![Demo Screenshot 2](./screenshots/img_9.png)
 
 ---
 
