@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 
 interface ChatUIProps {

@@ -57,7 +57,6 @@ export const CallConnect = ({
       _client.disconnectUser();
       setClient(undefined);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, userName, userImage]);
 
   const [call, setCall] = useState<Call>();
