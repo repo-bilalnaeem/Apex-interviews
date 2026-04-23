@@ -8,6 +8,17 @@
 
 ---
 
+## Demo
+
+[Watch the demo on YouTube](https://youtu.be/J6xnt58yUmM)
+
+---
+
+> **Geographic note:** [Stream](https://getstream.io) (the platform powering live video calls and chat) does not work in the UAE. If you are in a restricted region, use a VPN set to an EU location. The AI agent on call and Inngest webhook processing also require ngrok running locally — see the [Running locally](#getting-started) section below.
+> It is recommended to run the app locally rather than relying on a hosted deployment, as geographic restrictions may prevent the calling feature from working correctly.
+
+---
+
 An AI-powered interview coaching platform. Users create AI agents with custom job descriptions, conduct live mock interviews over video, and get post-interview analysis, coaching, and resume advice from a multi-agent AI system.
 
 ---
@@ -28,10 +39,10 @@ An AI-powered interview coaching platform. Users create AI agents with custom jo
 | Layer | Tech |
 |-------|------|
 | Framework | Next.js 15 (App Router, Turbopack) |
-| Database | Neon Serverless Postgres + Drizzle ORM |
+| Database | [Neon](https://neon.tech) Serverless Postgres + Drizzle ORM |
 | Auth | Better Auth |
-| Video/Audio calls | Stream Video SDK |
-| Chat | Stream Chat SDK |
+| Video/Audio calls | [Stream Video SDK](https://getstream.io/video/) |
+| Chat | [Stream Chat SDK](https://getstream.io/chat/) |
 | Background jobs | Inngest |
 | AI models | OpenAI GPT-4o, GPT-4o-mini, Whisper, text-embedding-ada-002 |
 | Agentic framework | LangChain (`@langchain/openai`, `@langchain/core`) + Inngest Agent Kit |
@@ -107,11 +118,21 @@ In a separate terminal:
 npx inngest-cli@latest dev
 ```
 
-This handles transcript processing after calls end. For webhook tunneling:
+### 6. Start the ngrok tunnel (required for AI agent + Inngest)
+
+The real-time AI agent on call and the Inngest transcript pipeline both rely on Stream webhooks reaching your local server. ngrok is required for this to work locally.
 
 ```bash
-npm run dev:webhook   # uses ngrok
+npm run dev:webhook
+# or, if you have a static ngrok domain:
+# ngrok http --url=your-static-domain.ngrok-free.app 3000
 ```
+
+ngrok will print a forwarding URL (e.g. `https://xxxx.ngrok-free.app`). Set that URL in two places:
+- **Stream Dashboard → Webhooks** → `https://your-ngrok-url/api/webhook`
+- **Inngest Dashboard → Syncs** → `https://your-ngrok-url/api/inngest`
+
+> Without ngrok running, Stream cannot deliver call events to your server, so the AI agent will not join calls and transcripts will not be processed.
 
 ---
 

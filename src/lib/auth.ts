@@ -8,8 +8,13 @@ export const auth = betterAuth({
   baseURL:
     process.env.BETTER_AUTH_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
-    // "http://localhost:3000",
+    "http://localhost:3000",
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    "http://localhost:3000",
     "http://localhost:3001",
+  ].filter(Boolean) as string[],
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID as string,
