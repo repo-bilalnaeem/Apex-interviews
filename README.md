@@ -10,7 +10,7 @@
 
 ### Live - App Link 
 
-[Clink here: https://apex-interviews.vercel.app/](https://apex-interviews.vercel.app/)
+[Click here: https://apex-interviews.vercel.app/](https://apex-interviews.vercel.app/)
 
 ---
 
