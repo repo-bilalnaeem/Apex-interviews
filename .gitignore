@@ -35,6 +35,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Auto-generated docs
+AI_COVERAGE.md
+
 # vercel
 .vercel
 

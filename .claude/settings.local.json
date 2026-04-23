@@ -47,7 +47,8 @@
       "Bash(rm \"src/app/\\(dashboard\\)/my-resumes/page.tsx\")",
       "Bash(rmdir \"src/app/\\(dashboard\\)/my-resumes\")",
       "Skill(gsd:quick)",
-      "Bash(npm show *)"
+      "Bash(npm show *)",
+      "Bash(git rm *)"
     ]
   }
 }
