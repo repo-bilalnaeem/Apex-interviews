@@ -318,7 +318,7 @@ Live mock interviews use **Stream Video SDK** for real-time audio/video. The AI 
 src/
 ├── app/
 │   ├── api/
-│   │   ├── gemini/route.ts      # Chatbot SSE endpoint (POST)
+│   │   ├── openai/route.ts      # Chatbot SSE endpoint (POST)
 │   │   ├── inngest/route.ts     # Inngest event handler
 │   │   ├── parseResume/         # PDF text extraction
 │   │   ├── auth/                # Better Auth routes
