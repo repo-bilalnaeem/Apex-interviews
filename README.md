@@ -1,5 +1,13 @@
 # Apex Interviews
 
+**Problem:** Job seekers don't get enough realistic, personalised interview practice before high-stakes applications.
+
+**Value:** Apex gives you AI mock interviews over live video, CV tailoring with ATS scoring, and real-time coaching — all in one app.
+
+**AI component:** A multi-agent RAG system routes every message to a specialist (transcript analyst, interview coach, or CV advisor), retrieves grounded context from your interview recording, and streams a personalised response.
+
+---
+
 An AI-powered interview coaching platform. Users create AI agents with custom job descriptions, conduct live mock interviews over video, and get post-interview analysis, coaching, and resume advice from a multi-agent AI system.
 
 ---

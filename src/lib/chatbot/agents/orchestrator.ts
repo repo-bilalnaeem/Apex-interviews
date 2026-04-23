@@ -44,8 +44,10 @@ export async function orchestrateAndStream(
   onToolCall: (toolName: string) => void,
   onToken: (token: string) => void
 ): Promise<void> {
+  const start = Date.now();
   const agentName = await classifyIntent(ctx.message);
   onAgentName(agentRegistry[agentName].displayName);
   const agent = agentRegistry[agentName];
   await agent.stream(ctx, onToolCall, onToken);
+  console.log({ agent: agentName, latencyMs: Date.now() - start, meetingId: ctx.meetingId ?? null });
 }
